@@ -28,11 +28,11 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
       <HeroFigure
         label="Calls answered live by the agent"
         value={pct(answered, o.calls.total)}
-        note={`${num(answered)} of ${num(o.calls.total)} calls were picked up, day or night. Before the agent, about 48% of enquiries got no reply within 48 hours, and a third arrived outside 10am to 7pm.`}
+        note={`${o.calls.total ? `${num(answered)} of ${num(o.calls.total)} calls were picked up, day or night. ` : "No calls in this period yet. "}Before the agent, about 48% of enquiries got no reply within 48 hours, and a third arrived outside 10am to 7pm.`}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile label="Calls" value={num(o.calls.total)} note={`${afterShare} after hours · ${o.calls.missed} missed · ${o.calls.dropped} dropped`} />
+        <StatTile label="Calls" value={num(o.calls.total)} note={o.calls.total ? `${afterShare} after hours · ${o.calls.missed} missed · ${o.calls.dropped} dropped` : "No calls yet"} />
         <StatTile label="Qualified rate" value={pct(o.outcomes.qualified, enquiries)} note={`${o.outcomes.qualified} of ${enquiries} enquiries`} />
         <StatTile label="Handoffs accepted" value={`${o.handoffs.accepted} of ${o.handoffs.sent}`} note={`Typical time to accept: ${minutes(o.handoffs.medianAcceptMinutes)}`} />
         <StatTile label="Consultations booked" value={num(o.bookings.booked)} note={o.bookings.cancelled ? `${o.bookings.cancelled} cancelled` : undefined} />
