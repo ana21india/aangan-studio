@@ -1,0 +1,17 @@
+# Triggers the timed Telegram follow-ups (10-minute booking nudge, next-morning reminder, overdue handoffs).
+# Vercel's free plan only allows a daily cron, so GitHub's scheduler calls our endpoint instead.
+# Needs two repository secrets: APP_URL (the Vercel address) and CRON_SECRET.
+name: followups
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the follow-ups endpoint
+        run: |
+          curl --fail --silent --show-error --max-time 30 -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/followups"
