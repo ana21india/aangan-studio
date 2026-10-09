@@ -15,7 +15,9 @@
     "telegram:setup": "tsx scripts/telegram-setup.ts",
     "e2e": "tsx scripts/e2e.ts",
     "cleanup:tests": "tsx scripts/cleanup-tests.ts",
-    "hubspot:setup": "tsx scripts/hubspot-setup.ts"
+    "hubspot:setup": "tsx scripts/hubspot-setup.ts",
+    "seed:demo": "tsx scripts/seed-demo.ts",
+    "admin:set": "tsx scripts/admin-set-password.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
