@@ -1,35 +1,130 @@
-import { verifySignature } from "./signature";
-import type { CallEndedEvent, VoiceProvider } from "./types";
+import { timingSafeEqual } from "node:crypto";
+import type { CallEndedEvent, CallStatus } from "./types";
 
-// Real Vaani provider (vaanivoice.ai). UNVERIFIED until Milestone 6: the field names below come from
-// the public docs (docs/research-vaanivoice.md) and must be confirmed with a real test call.
-// Known gaps: the call_postprocessing payload has no caller number or cost, so Milestone 6 adds a
-// lookup against GET /api/call-history using call_id. Until then callerPhone stays null and the
-// pipeline refuses the call loudly instead of guessing.
-export class VaaniProvider implements VoiceProvider {
-  readonly name = "vaani";
+// Real Vaani (vaanivoice.ai) events, as documented at docs.vaanivoice.ai/guides/webhook-setup. Field names are
+// confirmed against the first live test call in Milestone 6.
+//   call_started               {event, room_name, status, phone_number}          the caller's number is here
+//   human_transfer_*           {event, room_name, transfer_type, phone_number, ...}
+//   call_ended                 {event, room_name, call_duration (seconds), end_reason}
+//   call_postprocessing        {event, call_id, timestamp, data:{room_name, call_id, call_duration (ms),
+//                               end_reason, summary, entities, dispositions, recording_url, transcript}}
+// Vaani does not sign these requests, so our webhook address carries a secret token that we check instead.
 
-  verifyWebhook(rawBody: string, headers: Headers): boolean {
-    // Dashboard webhook signing is undocumented; campaign webhooks use HMAC-SHA256 in X-Vaani-Signature.
-    return verifySignature(process.env.VAANI_WEBHOOK_SECRET, rawBody, headers.get("x-vaani-signature"));
+export interface VaaniSession {
+  roomName: string;
+  phone: string | null;
+  startedAt: Date | null;
+  transferStatus: "initiated" | "successful" | "failed" | null;
+}
+
+export interface VaaniSessionStore {
+  upsertStarted(roomName: string, phone: string | null, at: Date): Promise<void>;
+  markTransfer(roomName: string, status: "initiated" | "successful" | "failed", type: string | null, phone: string | null): Promise<void>;
+  get(roomName: string): Promise<VaaniSession | null>;
+}
+
+export function verifyToken(received: string | null, secret = process.env.VAANI_WEBHOOK_SECRET): boolean {
+  if (!secret || !received) return false;
+  const a = Buffer.from(secret);
+  const b = Buffer.from(received);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+export function normalisePhoneNumber(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const digits = String(raw).replace(/\D/g, "");
+  if (digits.length < 10) return null;
+  return digits.length === 10 ? `+91${digits}` : `+${digits}`;
+}
+
+// Vaani labels turns "AGENT:" and "USER:". The caller is the USER.
+function transcriptText(t: unknown): string | null {
+  if (typeof t === "string") return t.trim() || null;
+  if (Array.isArray(t)) {
+    const lines = t.map((x: { role?: string; speaker?: string; text?: string; content?: string }) =>
+      `${(x.role ?? x.speaker ?? "").toUpperCase()}: ${x.text ?? x.content ?? ""}`.trim());
+    return lines.join("\n\n").trim() || null;
+  }
+  return null;
+}
+
+export interface VaaniBody {
+  event?: string;
+  type?: string;
+  room_name?: string;
+  phone_number?: string;
+  transfer_type?: string;
+  call_duration?: number;
+  end_reason?: string;
+  call_id?: string;
+  timestamp?: string | number;
+  data?: {
+    room_name?: string;
+    call_id?: string;
+    call_duration?: number;
+    end_reason?: string;
+    summary?: string;
+    recording_url?: string;
+    transcript?: unknown;
+  };
+}
+
+const MIN_TRANSCRIPT_CHARS = 120;
+
+export interface VaaniDeps {
+  sessions: VaaniSessionStore;
+  process: (event: CallEndedEvent) => Promise<unknown>;
+  now?: () => Date;
+}
+
+export async function handleVaaniWebhook(body: VaaniBody, deps: VaaniDeps): Promise<{ handled: string }> {
+  const { sessions } = deps;
+  const now = (deps.now ?? (() => new Date()))();
+  const name = body.event ?? body.type ?? "";
+
+  if (name === "call_started" && body.room_name) {
+    await sessions.upsertStarted(body.room_name, normalisePhoneNumber(body.phone_number), now);
+    return { handled: name };
   }
 
-  parseCallEnded(rawBody: string): CallEndedEvent {
-    const b = JSON.parse(rawBody);
-    const d = b.data ?? {};
-    const started = new Date(b.timestamp ?? Date.now());
+  if (name.startsWith("human_transfer_") && body.room_name) {
+    const status = name.replace("human_transfer_", "") as "initiated" | "successful" | "failed";
+    if (["initiated", "successful", "failed"].includes(status)) {
+      await sessions.markTransfer(body.room_name, status, body.transfer_type ?? null, normalisePhoneNumber(body.phone_number));
+    }
+    return { handled: name };
+  }
+
+  if (name === "call_postprocessing" && body.data) {
+    const d = body.data;
+    const room = d.room_name ?? body.room_name;
+    const session = room ? await sessions.get(room) : null;
+    const transcript = transcriptText(d.transcript);
     const durationSec = typeof d.call_duration === "number" ? Math.round(d.call_duration / 1000) : null;
-    return {
-      providerCallId: String(b.call_id),
+
+    const ts = body.timestamp != null ? new Date(body.timestamp) : now;
+    const endedAt = Number.isNaN(ts.getTime()) ? now : ts;
+    const startedAt = session?.startedAt ?? (durationSec != null ? new Date(endedAt.getTime() - durationSec * 1000) : endedAt);
+
+    let status: CallStatus = "completed";
+    if (session?.transferStatus === "successful") status = "transferred";
+    else if (!transcript || transcript.length < MIN_TRANSCRIPT_CHARS) status = "dropped";
+
+    await deps.process({
+      providerCallId: d.call_id ?? body.call_id ?? room ?? `vaani-${now.getTime()}`,
       channel: "phone",
-      callerPhone: null,
-      startedAt: started,
-      endedAt: durationSec != null ? new Date(started.getTime() + durationSec * 1000) : null,
+      callerPhone: session?.phone ?? null,
+      startedAt,
+      endedAt,
       durationSec,
-      status: d.end_reason === "transferred" ? "transferred" : "completed",
-      transcript: typeof d.transcript === "string" ? d.transcript : JSON.stringify(d.transcript ?? null),
+      status,
+      transcript,
       recordingUrl: d.recording_url ?? null,
       providerCostInr: null,
-    };
+    });
+    return { handled: name };
   }
+
+  // call_ended, user_picked_up_at, and so on carry nothing we need: the postprocessing event has the full record.
+  return { handled: `ignored:${name || "unknown"}` };
 }

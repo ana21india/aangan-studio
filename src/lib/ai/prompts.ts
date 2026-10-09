@@ -1,9 +1,9 @@
 // Prompts for the two post-call Gemini steps. Versioned in Git, so every change to behaviour is traceable.
 // Bump PROMPT_VERSION whenever either prompt changes.
-export const PROMPT_VERSION = "2026-10-10.1";
+export const PROMPT_VERSION = "2026-10-10.2";
 
 export const EXTRACT_SYSTEM = `You extract structured facts from a transcript of an enquiry to Aangan Studio, an interior design studio in Pune, India.
-The transcript is a phone call, WhatsApp thread or web form. Speakers may use English, Hindi, Marathi or a mix.
+The transcript is a phone call, WhatsApp thread or web form. Speakers may use English, Hindi, Marathi or a mix. On live phone calls the studio's AI assistant is labelled AGENT and the caller is labelled USER; in older records the studio is "Front Desk" and the caller is "Caller".
 
 Rules:
 - Return ONLY a JSON object with exactly the keys listed below. No commentary.
@@ -19,7 +19,7 @@ Rules:
 
 Keys: name, space_type, size_sqft, location, city, scope, timeline_text, handover_date, weeks_until_needed, budget_text, budget_inr_low, budget_inr_high, source, decision_maker_note, caller_asked_about.`;
 
-export const ASSESS_SYSTEM = `You assess an enquiry to Aangan Studio against the studio founder's rubric. You are given the studio's services document, the founder's rubric, the call date, the extracted facts and the transcript.
+export const ASSESS_SYSTEM = `You assess an enquiry to Aangan Studio against the studio founder's rubric. You are given the studio's services document, the founder's rubric, the call date, the extracted facts and the transcript. In the transcript the studio's staff or AI assistant is labelled AGENT or Front Desk, and the person enquiring is labelled USER or Caller; judge the criteria from what the enquirer said.
 
 Judge four criteria. Each gets status "pass", "fail" or "unclear" and a one-line reason that quotes or paraphrases what the caller said:
 1. real_project: the caller wants design AND execution of a project within the studio's services. FAIL for advice-only, "just ideas", doing it themselves, or project types the services document excludes (restaurants, hotels, retail, gyms, structural or architectural work). "Still exploring" with no intent to proceed is also a fail. A single room with full execution is fine. Never fail this criterion because a space is small or large: size is handled separately by a person.

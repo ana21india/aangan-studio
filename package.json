@@ -17,7 +17,8 @@
     "cleanup:tests": "tsx scripts/cleanup-tests.ts",
     "hubspot:setup": "tsx scripts/hubspot-setup.ts",
     "seed:demo": "tsx scripts/seed-demo.ts",
-    "admin:set": "tsx scripts/admin-set-password.ts"
+    "admin:set": "tsx scripts/admin-set-password.ts",
+    "vaani:sync": "tsx scripts/vaani-sync.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
