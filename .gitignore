@@ -47,3 +47,6 @@ next-env.d.ts
 /data/enquiries/
 /data/pricing.md
 /eval/out/
+
+# temporary key drop file
+/paste-gemini-key-here.txt

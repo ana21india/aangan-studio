@@ -18,7 +18,7 @@ export async function generateJson<T>(
   opts: { apiKey?: string; model?: string; retries?: number } = {},
 ): Promise<GeminiResult<T>> {
   const apiKey = opts.apiKey ?? process.env.GEMINI_API_KEY;
-  const model = opts.model ?? process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+  const model = opts.model ?? process.env.GEMINI_MODEL ?? "gemini-3.8-flash";
   if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
 
   const usage: Usage = { inputTokens: 0, outputTokens: 0 };

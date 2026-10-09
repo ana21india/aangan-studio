@@ -63,7 +63,7 @@ async function pool<T, R>(items: T[], size: number, fn: (t: T) => Promise<R>): P
 async function main() {
   if (!process.env.GEMINI_API_KEY) throw new Error("Set GEMINI_API_KEY in .env.local first");
   const enquiries = new MockVoiceProvider().replay();
-  console.log(`Running ${enquiries.length} enquiries with ${process.env.GEMINI_MODEL ?? "gemini-2.5-flash"} (prompts ${PROMPT_VERSION})...`);
+  console.log(`Running ${enquiries.length} enquiries with ${process.env.GEMINI_MODEL ?? "gemini-3.8-flash"} (prompts ${PROMPT_VERSION})...`);
 
   const runs = await pool(enquiries, 4, async (e) => {
     try {
@@ -127,7 +127,7 @@ async function main() {
   const summary = [
     `# Evaluation summary`,
     ``,
-    `Model: ${process.env.GEMINI_MODEL ?? "gemini-2.5-flash"} · prompts ${PROMPT_VERSION} · ${new Date().toISOString().slice(0, 16)}Z`,
+    `Model: ${process.env.GEMINI_MODEL ?? "gemini-3.8-flash"} · prompts ${PROMPT_VERSION} · ${new Date().toISOString().slice(0, 16)}Z`,
     ``,
     `- Enquiries run: ${ok} of ${enquiries.length}${failed.length ? ` (${failed.length} failed)` : ""}`,
     `- **Qualified: ${counts.qualified} (${pct(counts.qualified, ok)})** · Not qualified: ${counts.not_qualified} (${pct(counts.not_qualified, ok)}) · Unsure: ${counts.unsure} (${pct(counts.unsure, ok)})`,
