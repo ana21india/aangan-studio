@@ -11,7 +11,9 @@
     "seed:knowledge": "tsx scripts/seed-knowledge.ts",
     "check:db": "tsx scripts/check-db.ts",
     "eval": "tsx scripts/eval.ts",
-    "migrate": "tsx scripts/migrate.ts"
+    "migrate": "tsx scripts/migrate.ts",
+    "telegram:setup": "tsx scripts/telegram-setup.ts",
+    "e2e": "tsx scripts/e2e.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",

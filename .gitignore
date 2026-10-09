@@ -50,3 +50,4 @@ next-env.d.ts
 
 # temporary key drop file
 /paste-gemini-key-here.txt
+/paste-*-here.txt

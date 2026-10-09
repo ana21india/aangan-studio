@@ -16,6 +16,8 @@ export interface PipelineDeps {
   route?: (result: PipelineResult, ctx: { event: CallEndedEvent; callerPhone: string }) => Promise<void>;
 }
 
+const appBase = (override?: string) => override ?? process.env.APP_BASE_URL ?? "http://localhost:3000";
+
 // Under this many characters there is nothing to judge, so we skip Gemini and ask the front desk to call back.
 const MIN_TRANSCRIPT_CHARS = 120;
 
@@ -36,6 +38,12 @@ export async function processCallEnded(event: CallEndedEvent, deps: PipelineDeps
   const inHours = isInHours(event.startedAt, cfg.OFFICE_HOURS_START, cfg.OFFICE_HOURS_END);
   const callId = await store.insertCall(event, callerId, inHours);
   if (callId === null) return { duplicate: true }; // duplicate webhooks never create a second handoff
+
+  // A routing failure (for example Telegram being down) must never lose the enquiry: it is already saved,
+  // so we mark the call failed and rethrow. Milestone 7 adds retries and a last-resort alert.
+  const runRoute = async (result: PipelineResult) => {
+    await deps.route?.(result, { event, callerPhone: phone });
+  };
 
   try {
     // Repeat calls from one number inside the merge window share one enquiry.
@@ -58,8 +66,9 @@ export async function processCallEnded(event: CallEndedEvent, deps: PipelineDeps
         category: "unsure",
         escalation: { reason, urgent: false },
         skippedAnalysis: event.status === "missed" ? "missed" : "too_short",
+        context: { callerId, name: null, reasons: [], transcriptUrl: `${appBase()}/dashboard/calls/${callId}`, usesTelegram: null },
       };
-      await deps.route?.(result, { event, callerPhone: phone });
+      await runRoute(result);
       return result;
     }
 
@@ -67,7 +76,7 @@ export async function processCallEnded(event: CallEndedEvent, deps: PipelineDeps
     const analysis = await analyse(combined, event.startedAt, knowledge);
     const outcome = deriveOutcome(analysis.fields, analysis.assessment, cfg);
 
-    const base = deps.appBaseUrl ?? process.env.APP_BASE_URL ?? "http://localhost:3000";
+    const base = appBase(deps.appBaseUrl);
     const handoffNote =
       outcome.category === "qualified"
         ? buildHandoffNote({ fields: analysis.fields, assessment: analysis.assessment, outcome, phone, transcriptUrl: `${base}/dashboard/calls/${callId}` })
@@ -99,8 +108,15 @@ export async function processCallEnded(event: CallEndedEvent, deps: PipelineDeps
       escalation: outcome.escalation,
       handoffNote,
       alreadyHandedOff: await store.hasHandoff(enquiryId),
+      context: {
+        callerId,
+        name: analysis.fields.name,
+        reasons: outcome.reasons,
+        transcriptUrl: `${base}/dashboard/calls/${callId}`,
+        usesTelegram: analysis.assessment.uses_telegram,
+      },
     };
-    await deps.route?.(result, { event, callerPhone: phone });
+    await runRoute(result);
     return result;
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

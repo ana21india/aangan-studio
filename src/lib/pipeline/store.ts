@@ -40,4 +40,11 @@ export interface PipelineResult {
   handoffNote?: string | null;
   alreadyHandedOff?: boolean;
   skippedAnalysis?: "missed" | "too_short";
+  context?: {
+    callerId: string;
+    name: string | null;
+    reasons: string[];
+    transcriptUrl: string;
+    usesTelegram: boolean | null;
+  };
 }

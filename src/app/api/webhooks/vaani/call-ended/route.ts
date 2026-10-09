@@ -1,6 +1,6 @@
 import { after } from "next/server";
+import { productionPipelineDeps } from "@/lib/notify/wire";
 import { processCallEnded } from "@/lib/pipeline/process-call";
-import { PgStore } from "@/lib/pipeline/store-pg";
 import { getVoiceProvider } from "@/lib/voice";
 
 // Gemini calls take a few seconds; the provider expects a quick reply, so we acknowledge first and process after.
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   // 2-7 run after the response. Duplicates are detected inside (idempotent on provider_call_id).
   after(async () => {
     try {
-      await processCallEnded(event, { store: new PgStore() });
+      await processCallEnded(event, await productionPipelineDeps());
     } catch {
       // Already logged and marked failed inside the pipeline. Milestone 7 adds retries and a front-desk alert.
     }
