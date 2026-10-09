@@ -1,0 +1,7 @@
+{
+  "_note": "Claude's provisional labels from reading the transcripts, NOT ground truth. Hand-label a sample to check accuracy. q=qualified, n=not_qualified, u=unsure (a person should look).",
+  "T01":"q","T02":"q","T03":"n","T04":"n","T05":"q","T06":"q","T07":"u","T08":"u","T09":"u","T10":"u",
+  "T11":"q","T12":"q","T13":"q","T14":"q","T15":"q","T16":"u","T17":"q","T18":"u","T19":"n","T20":"q",
+  "W01":"q","W02":"u","W03":"q","W04":"q","W05":"u","W06":"q","W07":"n","W08":"u","W09":"q","W10":"n",
+  "F01":"q","F02":"q","F03":"n","F04":"u","F05":"q","F06":"q","F07":"u","F08":"n","F09":"q","F10":"q"
+}

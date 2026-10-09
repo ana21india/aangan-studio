@@ -9,7 +9,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "seed:knowledge": "tsx scripts/seed-knowledge.ts",
-    "check:db": "tsx scripts/check-db.ts"
+    "check:db": "tsx scripts/check-db.ts",
+    "eval": "tsx scripts/eval.ts",
+    "migrate": "tsx scripts/migrate.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
