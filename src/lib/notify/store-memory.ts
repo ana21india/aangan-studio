@@ -1,5 +1,5 @@
 import type {
-  AcceptResult, DueLink, EnquiryContext, LinkRow, NotifyStore, OverdueHandoff, StaleEscalation,
+  BookingRecord, CallerCrm, AcceptResult, DueLink, EnquiryContext, LinkRow, NotifyStore, OverdueHandoff, StaleEscalation,
 } from "./store";
 
 // In-memory stand-in for tests.
@@ -56,4 +56,25 @@ export class MemoryNotifyStore implements NotifyStore {
   async markOverdueAlerted(id: string) { this.handoffs.find((h) => h.id === id)!.overdueAlerted = true; }
   async staleEscalations(cutoff: Date) { return this.stale.filter((s) => s.createdAt <= cutoff); }
   async markEscalationRealerted(id: string) { this.stale = this.stale.filter((s) => s.id !== id); }
+
+  callerCrm = new Map<string, { name: string | null; phone: string; hubspotContactId: string | null }>();
+  deals = new Map<string, string>();
+  bookingRows: BookingRecord[] = [];
+
+  async getCallerCrm(callerId: string): Promise<CallerCrm | null> {
+    const c = this.callerCrm.get(callerId);
+    return c ? { callerId, ...c } : null;
+  }
+  async setCallerContact(callerId: string, id: string) { this.callerCrm.get(callerId)!.hubspotContactId = id; }
+  async getEnquiryDeal(enquiryId: string) { return this.deals.get(enquiryId) ?? null; }
+  async setEnquiryDeal(enquiryId: string, dealId: string) { this.deals.set(enquiryId, dealId); }
+  async findLatestQualifiedByPhoneForBooking(phone: string, since: Date) {
+    const e = [...this.enquiries.values()].filter((x) => x.phone === phone && x.qualified && x.createdAt >= since).pop();
+    return e ? { ...e, dealId: this.deals.get(e.enquiryId) ?? null } : null;
+  }
+  async upsertBooking(b: BookingRecord) {
+    const i = this.bookingRows.findIndex((x) => x.calBookingId === b.calBookingId);
+    if (i >= 0) this.bookingRows[i] = { ...b, enquiryId: this.bookingRows[i].enquiryId ?? b.enquiryId };
+    else this.bookingRows.push(b);
+  }
 }

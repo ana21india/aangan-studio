@@ -1,6 +1,7 @@
 import { analyseTranscript, type Analysis, type KnowledgeDocs } from "../ai/analyse";
 import type { AppConfig } from "../config-defaults";
 import { deriveOutcome } from "../scoring/rules";
+import type { ExtractedFields } from "../scoring/types";
 import type { CallEndedEvent } from "../voice/types";
 import { computeCosts, ratesFromEnv, type Rates } from "./cost";
 import { buildHandoffNote } from "./handoff-note";
@@ -15,6 +16,11 @@ export interface PipelineDeps {
   // Milestone 3 plugs Telegram in here; Milestone 4 adds HubSpot and the Cal.com link.
   route?: (result: PipelineResult, ctx: { event: CallEndedEvent; callerPhone: string }) => Promise<void>;
 }
+
+const dealName = (f: ExtractedFields) =>
+  [f.name ?? "Unknown caller", f.location ?? f.city, f.size_sqft ? `${f.size_sqft} sq ft` : null, f.scope?.replace("_", " ")]
+    .filter(Boolean)
+    .join(" · ");
 
 const appBase = (override?: string) => override ?? process.env.APP_BASE_URL ?? "http://localhost:3000";
 
@@ -66,7 +72,7 @@ export async function processCallEnded(event: CallEndedEvent, deps: PipelineDeps
         category: "unsure",
         escalation: { reason, urgent: false },
         skippedAnalysis: event.status === "missed" ? "missed" : "too_short",
-        context: { callerId, name: null, reasons: [], summary: null, transcriptUrl: `${appBase()}/dashboard/calls/${callId}`, usesTelegram: null },
+        context: { callerId, name: null, reasons: [], summary: null, dealName: `Enquiry · ${maskPhone(phone)}`, transcriptUrl: `${appBase()}/dashboard/calls/${callId}`, usesTelegram: null },
       };
       await runRoute(result);
       return result;
@@ -113,6 +119,7 @@ export async function processCallEnded(event: CallEndedEvent, deps: PipelineDeps
         name: analysis.fields.name,
         reasons: outcome.reasons,
         summary: analysis.fields.caller_asked_about,
+        dealName: dealName(analysis.fields),
         transcriptUrl: `${base}/dashboard/calls/${callId}`,
         usesTelegram: analysis.assessment.uses_telegram,
       },

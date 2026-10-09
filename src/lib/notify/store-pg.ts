@@ -1,6 +1,6 @@
 import { query } from "../db";
 import type {
-  AcceptResult, DueLink, EnquiryContext, LinkRow, NotifyStore, OverdueHandoff, StaleEscalation,
+  BookingRecord, CallerCrm, AcceptResult, DueLink, EnquiryContext, LinkRow, NotifyStore, OverdueHandoff, StaleEscalation,
 } from "./store";
 
 type LinkSql = {
@@ -124,5 +124,45 @@ export class PgNotifyStore implements NotifyStore {
 
   async markEscalationRealerted(id: string) {
     await query("update escalations set last_alerted_at = now() where id = $1", [id]);
+  }
+
+  async getCallerCrm(callerId: string): Promise<CallerCrm | null> {
+    const r = await query<{ id: string; name: string | null; phone: string; hubspot_contact_id: string | null }>(
+      "select id, name, phone, hubspot_contact_id from callers where id = $1", [callerId]);
+    return r[0] ? { callerId: r[0].id, name: r[0].name, phone: r[0].phone, hubspotContactId: r[0].hubspot_contact_id } : null;
+  }
+
+  async setCallerContact(callerId: string, hubspotContactId: string) {
+    await query("update callers set hubspot_contact_id = $2 where id = $1", [callerId, hubspotContactId]);
+  }
+
+  async getEnquiryDeal(enquiryId: string): Promise<string | null> {
+    const r = await query<{ hubspot_deal_id: string | null }>("select hubspot_deal_id from enquiries where id = $1", [enquiryId]);
+    return r[0]?.hubspot_deal_id ?? null;
+  }
+
+  async setEnquiryDeal(enquiryId: string, dealId: string) {
+    await query("update enquiries set hubspot_deal_id = $2 where id = $1", [enquiryId, dealId]);
+  }
+
+  async findLatestQualifiedByPhoneForBooking(phone: string, since: Date) {
+    const r = await query<{ id: string; caller_id: string; phone: string; name: string | null; hubspot_deal_id: string | null }>(
+      `select e.id, e.caller_id, c.phone, coalesce(e.name, c.name) as name, e.hubspot_deal_id
+       from enquiries e join callers c on c.id = e.caller_id
+       where c.phone = $1 and e.category = 'qualified' and e.created_at >= $2
+       order by e.created_at desc limit 1`, [phone, since.toISOString()]);
+    return r[0] ? { enquiryId: r[0].id, callerId: r[0].caller_id, phone: r[0].phone, name: r[0].name, dealId: r[0].hubspot_deal_id } : null;
+  }
+
+  async upsertBooking(b: BookingRecord) {
+    await query(
+      `insert into bookings (enquiry_id, cal_booking_id, scheduled_for, status, attendee_name, attendee_phone, cancelled_at)
+       values ($1,$2,$3,$4,$5,$6, case when $4 = 'cancelled' then now() end)
+       on conflict (cal_booking_id) do update
+         set scheduled_for = excluded.scheduled_for, status = excluded.status,
+             enquiry_id = coalesce(bookings.enquiry_id, excluded.enquiry_id),
+             cancelled_at = case when excluded.status = 'cancelled' then now() else null end,
+             updated_at = now()`,
+      [b.enquiryId, b.calBookingId, b.scheduledFor?.toISOString() ?? null, b.status, b.attendeeName, b.attendeePhone]);
   }
 }

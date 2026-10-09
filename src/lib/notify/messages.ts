@@ -65,3 +65,15 @@ export const callerNoMatch =
   "Thanks for getting in touch. I couldn't find a recent enquiry for that number, so I've asked our front desk to contact you directly.";
 
 export const callerOther = "I can only send booking links here. For anything else, please call the studio during 10am to 7pm.";
+
+export const crmFailureAlert = (name: string | null, phone: string, error: string) =>
+  [`🧩 HubSpot sync failed`, who(name, phone), "The enquiry is saved and any handoff was sent, but this caller is not in HubSpot yet. Please add them by hand.", `Reason: ${error.slice(0, 200)}`].join("\n");
+
+export const bookingAlert = (name: string | null, phone: string | null, when: string) =>
+  [`📅 Consultation booked`, who(name, phone), `When: ${when}`].join("\n");
+
+export const bookingCancelledAlert = (name: string | null, phone: string | null, when: string) =>
+  [`❌ Consultation cancelled`, who(name, phone), `Was: ${when}`].join("\n");
+
+export const bookingUnmatchedAlert = (name: string | null, phone: string | null, when: string) =>
+  [`❓ Booking from someone we cannot match`, who(name, phone), `When: ${when}`, "No recent qualified enquiry found for that number. Please check who this is."].join("\n");

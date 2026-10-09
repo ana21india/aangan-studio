@@ -5,7 +5,9 @@ import { formatIst, isInHours, nextOfficeOpen } from "../pipeline/hours";
 import type { PipelineResult } from "../pipeline/store";
 import type { CallEndedEvent } from "../voice/types";
 import type { TelegramClient } from "../telegram/client";
-import { frontDeskAlert, noTelegramAlert } from "./messages";
+import type { Crm } from "../crm/hubspot";
+import { syncToCrm } from "../crm/sync";
+import { crmFailureAlert, frontDeskAlert, noTelegramAlert } from "./messages";
 import type { NotifyStore } from "./store";
 
 export interface RouterEnv {
@@ -25,14 +27,35 @@ export function routerEnvFromProcess(): RouterEnv {
 //   Qualified          -> designers' group (Accept button) + booking-link flow for the caller
 //   Unsure / escalated -> front-desk chat
 //   Not qualified      -> nothing (the agent already closed politely)
-export function makeRouter(deps: { tg: TelegramClient; notify: NotifyStore; cfg: AppConfig; env: RouterEnv; now?: () => Date }) {
-  const { tg, notify, cfg, env } = deps;
+export function makeRouter(deps: { tg: TelegramClient; notify: NotifyStore; cfg: AppConfig; env: RouterEnv; crm?: Crm; now?: () => Date }) {
+  const { tg, notify, cfg, env, crm } = deps;
   const now = deps.now ?? (() => new Date());
 
   return async function route(result: PipelineResult, ctx: { event: CallEndedEvent; callerPhone: string }) {
     if (result.duplicate || !result.context) return;
+    // Telegram and HubSpot are independent: one failing must not stop the other, and nothing fails silently.
+    const outcomes = await Promise.allSettled([
+      telegramPart(result, ctx),
+      crm ? crmPart(result, ctx) : Promise.resolve(),
+    ]);
+    const failures = outcomes.flatMap((o) => (o.status === "rejected" ? [o.reason instanceof Error ? o.reason.message : String(o.reason)] : []));
+    if (failures.length) throw new Error(failures.join(" | "));
+  };
+
+  async function crmPart(result: PipelineResult, ctx: { event: CallEndedEvent; callerPhone: string }) {
+    try {
+      await syncToCrm({ crm: crm!, notify }, result);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      // Tell the front desk, so the contact or deal can be created by hand.
+      await tg.sendMessage(env.frontDeskChatId, crmFailureAlert(result.context?.name ?? null, ctx.callerPhone, message)).catch(() => {});
+      throw e;
+    }
+  }
+
+  async function telegramPart(result: PipelineResult, ctx: { event: CallEndedEvent; callerPhone: string }) {
     const { event, callerPhone } = ctx;
-    const c = result.context;
+    const c = result.context!;
 
     if (result.escalation) {
       await tg.sendMessage(
@@ -76,5 +99,5 @@ export function makeRouter(deps: { tg: TelegramClient; notify: NotifyStore; cfg:
         await tg.sendMessage(env.frontDeskChatId, noTelegramAlert(c.name, callerPhone, bookingLink(c.name, callerPhone, env.calcomUrl)));
       }
     }
-  };
+  }
 }

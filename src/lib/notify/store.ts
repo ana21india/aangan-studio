@@ -38,6 +38,22 @@ export interface StaleEscalation {
   createdAt: Date;
 }
 
+export interface CallerCrm {
+  callerId: string;
+  name: string | null;
+  phone: string;
+  hubspotContactId: string | null;
+}
+
+export interface BookingRecord {
+  calBookingId: string;
+  enquiryId: string | null;
+  scheduledFor: Date | null;
+  status: "booked" | "cancelled";
+  attendeeName: string | null;
+  attendeePhone: string | null;
+}
+
 export type AcceptResult = { accepted: true } | { accepted: false; by: string | null };
 
 // Everything the Telegram side needs from storage. Tests use an in-memory version.
@@ -62,4 +78,14 @@ export interface NotifyStore {
   markOverdueAlerted(handoffId: string): Promise<void>;
   staleEscalations(cutoff: Date): Promise<StaleEscalation[]>;
   markEscalationRealerted(id: string): Promise<void>;
+
+  // HubSpot (Milestone 4)
+  getCallerCrm(callerId: string): Promise<CallerCrm | null>;
+  setCallerContact(callerId: string, hubspotContactId: string): Promise<void>;
+  getEnquiryDeal(enquiryId: string): Promise<string | null>;
+  setEnquiryDeal(enquiryId: string, dealId: string): Promise<void>;
+
+  // Cal.com bookings (Milestone 4)
+  findLatestQualifiedByPhoneForBooking(phone: string, since: Date): Promise<(EnquiryContext & { dealId: string | null }) | null>;
+  upsertBooking(b: BookingRecord): Promise<void>;
 }

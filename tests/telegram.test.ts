@@ -33,7 +33,7 @@ const NOW = new Date("2026-09-02T05:00:00Z"); // 10:30 IST, in hours
 const qualified = (over: Partial<PipelineResult> = {}): PipelineResult => ({
   duplicate: false, callId: "c1", enquiryId: "e1", category: "qualified", escalation: null,
   handoffNote: "New qualified enquiry · score 8/10\nName: Priya", alreadyHandedOff: false,
-  context: { callerId: "k1", name: "Priya Shah", reasons: ["Real project: ok"], summary: "Wants a call from a senior person", transcriptUrl: "https://x/t/1", usesTelegram: null },
+  context: { callerId: "k1", name: "Priya Shah", reasons: ["Real project: ok"], summary: "Wants a call from a senior person", dealName: "Priya Shah · Kothrud", transcriptUrl: "https://x/t/1", usesTelegram: null },
   ...over,
 });
 
