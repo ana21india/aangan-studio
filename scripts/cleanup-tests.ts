@@ -16,6 +16,20 @@ async function main() {
   const enquiryIds = [...new Set(rows.map((r) => r.enquiry_id).filter(Boolean))] as string[];
   const callerIds = [...new Set(rows.map((r) => r.caller_id).filter(Boolean))] as string[];
 
+  // Archive the matching HubSpot test records first (HubSpot keeps archived records restorable for 90 days).
+  const token = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
+  if (token) {
+    const deals = (await sql.query("select hubspot_deal_id as id from enquiries where id = any($1::uuid[]) and hubspot_deal_id is not null", [enquiryIds])) as { id: string }[];
+    const contacts = (await sql.query("select hubspot_contact_id as id from callers where id = any($1::uuid[]) and hubspot_contact_id is not null", [callerIds])) as { id: string }[];
+    for (const [kind, list] of [["deals", deals], ["contacts", contacts]] as const) {
+      for (const { id } of list) {
+        const res = await fetch(`https://api.hubapi.com/crm/v3/objects/${kind}/${id}`, { method: "DELETE", headers: { authorization: `Bearer ${token}` } });
+        if (!res.ok && res.status !== 404) console.log(`HubSpot ${kind} ${id}: could not archive (HTTP ${res.status})`);
+      }
+    }
+    console.log(`Archived ${deals.length} HubSpot deals and ${contacts.length} contacts.`);
+  }
+
   // Children first, so foreign keys are never violated.
   await sql.query("delete from cost_events where call_id = any($1::uuid[])", [callIds]);
   await sql.query("delete from escalations where call_id = any($1::uuid[]) or enquiry_id = any($2::uuid[])", [callIds, enquiryIds]);
