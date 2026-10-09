@@ -13,7 +13,8 @@
     "eval": "tsx scripts/eval.ts",
     "migrate": "tsx scripts/migrate.ts",
     "telegram:setup": "tsx scripts/telegram-setup.ts",
-    "e2e": "tsx scripts/e2e.ts"
+    "e2e": "tsx scripts/e2e.ts",
+    "cleanup:tests": "tsx scripts/cleanup-tests.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
