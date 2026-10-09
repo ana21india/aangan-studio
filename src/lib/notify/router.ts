@@ -44,6 +44,7 @@ export function makeRouter(deps: { tg: TelegramClient; notify: NotifyStore; cfg:
           phone: callerPhone,
           at: formatIst(event.startedAt),
           reasons: c.reasons,
+          summary: c.summary,
           transcriptUrl: c.transcriptUrl,
         }),
       );

@@ -22,14 +22,17 @@ export function frontDeskAlert(a: {
   phone: string | null;
   at: string;
   reasons?: string[];
+  summary?: string | null;
   transcriptUrl?: string;
 }): string {
   const lines = [`${a.urgent ? "🚨 " : "⚠️ "}${REASON_TITLE[a.reason] ?? a.reason}`, `${who(a.name, a.phone)} · ${a.at}`];
   if (a.reason === "complaint") lines.push("Caller wants a call back from a senior person. Please respond right away.");
-  if (a.reasons?.length && !["missed_call", "dropped_call"].includes(a.reason)) {
+  // The criteria breakdown only helps when the question is "is this a good lead?", not for complaints or missed calls.
+  if (a.summary && ["complaint", "asked_for_person"].includes(a.reason)) lines.push("", `What they said: ${a.summary}`);
+  if (a.reasons?.length && ["unsure", "budget_mismatch", "decision_maker", "small_commercial"].includes(a.reason)) {
     lines.push("", ...a.reasons.map((r) => `• ${r}`));
   }
-  if (a.transcriptUrl) lines.push("", `Transcript: ${a.transcriptUrl}`);
+  if (a.transcriptUrl && !["missed_call", "dropped_call"].includes(a.reason)) lines.push("", `Transcript: ${a.transcriptUrl}`);
   return lines.join("\n");
 }
 

@@ -44,6 +44,7 @@ export interface PipelineResult {
     callerId: string;
     name: string | null;
     reasons: string[];
+    summary: string | null;
     transcriptUrl: string;
     usesTelegram: boolean | null;
   };

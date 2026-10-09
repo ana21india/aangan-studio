@@ -1,6 +1,6 @@
 // Prompts for the two post-call Gemini steps. Versioned in Git, so every change to behaviour is traceable.
 // Bump PROMPT_VERSION whenever either prompt changes.
-export const PROMPT_VERSION = "2026-10-09.3";
+export const PROMPT_VERSION = "2026-10-10.1";
 
 export const EXTRACT_SYSTEM = `You extract structured facts from a transcript of an enquiry to Aangan Studio, an interior design studio in Pune, India.
 The transcript is a phone call, WhatsApp thread or web form. Speakers may use English, Hindi, Marathi or a mix.
@@ -12,7 +12,7 @@ Rules:
 - Convert sizes to square feet as a number. Convert budgets to rupees as numbers (1 lakh = 100000, 1 crore = 10000000). Record a budget only if the caller said one.
 - "weeks_until_needed": the number of weeks from the call date until the caller needs the work started or the space ready, as a number, only if it can be worked out from what they said. Otherwise null.
 - "space_type": home, office, or other (restaurant, gym, retail and so on).
-- "scope": full_interior, partial_home (several rooms, or kitchen plus bedroom and so on), single_room, renovation, or other.
+- "scope": full_interior = the whole home or office designed end to end (including "redo the whole flat", or kitchen plus all bedrooms plus living room); partial_home = a few rooms or one floor; single_room = one room; renovation = ONLY repair, civil or structural work on an existing space with no new design; other = anything else.
 - "city": the city or town of the site. "location": the neighbourhood or area.
 - "decision_maker_note": who decides and whether the caller is authorised, in the caller's own terms, or null.
 - "caller_asked_about": one short phrase on what the caller asked or wanted, or null.

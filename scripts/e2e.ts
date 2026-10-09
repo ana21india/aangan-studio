@@ -17,7 +17,7 @@ async function main() {
 
   const enquiry = new MockVoiceProvider().replay().find((e) => e.id === id.toUpperCase());
   if (!enquiry) throw new Error(`No test enquiry ${id}`);
-  const phone = phoneArg ?? `+9199${String(Math.floor(Math.random() * 1e8)).padStart(8, "0")}`;
+  const phone = phoneArg ?? `+915000${String(Math.floor(Math.random() * 1e6)).padStart(6, "0")}`;
   const run = Date.now();
   const sql = neon(process.env.DATABASE_URL!);
 

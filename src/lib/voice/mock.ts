@@ -38,10 +38,11 @@ function parseDuration(text: string): number | null {
   return s ? Number(s[1]) : null;
 }
 
-// Synthetic, obviously fake caller numbers. One number per test enquiry.
+// Synthetic caller numbers, one per test enquiry. They start with 5, which is not a valid Indian mobile prefix,
+// so they cannot belong to a real person.
 function fakePhone(id: string): string {
   const n = Number(id.slice(1)) + (id[0] === "W" ? 20 : id[0] === "F" ? 30 : 0);
-  return `+91900000${String(n).padStart(4, "0")}`;
+  return `+91500000${String(n).padStart(4, "0")}`;
 }
 
 export function parseEnquiryFile(text: string): MockEnquiry {

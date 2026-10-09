@@ -33,7 +33,7 @@ const NOW = new Date("2026-09-02T05:00:00Z"); // 10:30 IST, in hours
 const qualified = (over: Partial<PipelineResult> = {}): PipelineResult => ({
   duplicate: false, callId: "c1", enquiryId: "e1", category: "qualified", escalation: null,
   handoffNote: "New qualified enquiry · score 8/10\nName: Priya", alreadyHandedOff: false,
-  context: { callerId: "k1", name: "Priya Shah", reasons: ["Real project: ok"], transcriptUrl: "https://x/t/1", usesTelegram: null },
+  context: { callerId: "k1", name: "Priya Shah", reasons: ["Real project: ok"], summary: "Wants a call from a senior person", transcriptUrl: "https://x/t/1", usesTelegram: null },
   ...over,
 });
 
@@ -76,9 +76,17 @@ describe("routing", () => {
     expect(tg.to(FRONTDESK)[0].text).toContain("+919000000001");
   });
 
-  it("asks the front desk to call back after a missed call (T08)", async () => {
+  it("asks the front desk to call back after a missed call (T08), with no transcript link", async () => {
     await router()(qualified({ category: "unsure", handoffNote: null, escalation: { reason: "missed_call", urgent: false } }), ctx);
     expect(tg.to(FRONTDESK)[0].text).toMatch(/Missed call/);
+    expect(tg.to(FRONTDESK)[0].text).not.toMatch(/Transcript/);
+  });
+
+  it("shows what the caller said, not the lead-scoring criteria, for a complaint", async () => {
+    await router()(qualified({ category: "unsure", handoffNote: null, escalation: { reason: "complaint", urgent: true } }), ctx);
+    const text = tg.to(FRONTDESK)[0].text;
+    expect(text).toMatch(/What they said: Wants a call from a senior person/);
+    expect(text).not.toMatch(/Real project/);
   });
 
   it("gives the front desk the booking link at once if the caller does not use Telegram (D-004)", async () => {

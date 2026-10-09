@@ -118,7 +118,15 @@ async function main() {
   }
 
   mkdirSync("eval/out", { recursive: true });
-  writeFileSync("eval/out/results.csv", "﻿" + rows.join("\n"), "utf-8");
+  // If results.csv is open in Excel, Windows refuses to overwrite it, so fall back to a new file name.
+  let csvPath = "eval/out/results.csv";
+  try {
+    writeFileSync(csvPath, "﻿" + rows.join("\n"), "utf-8");
+  } catch {
+    csvPath = `eval/out/results_${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.csv`;
+    writeFileSync(csvPath, "﻿" + rows.join("\n"), "utf-8");
+    console.log(`results.csv is open elsewhere, wrote ${csvPath} instead`);
+  }
 
   const ok = runs.filter((r) => r.ok).length;
   const pct = (n: number, d: number) => (d ? `${Math.round((100 * n) / d)}%` : "n/a");
@@ -149,7 +157,7 @@ async function main() {
   ].join("\n");
   writeFileSync("eval/out/summary.md", summary, "utf-8");
   console.log("\n" + summary);
-  console.log("Wrote eval/out/results.csv and eval/out/summary.md");
+  console.log(`Wrote ${csvPath} and eval/out/summary.md`);
 }
 
 main().catch((e) => {

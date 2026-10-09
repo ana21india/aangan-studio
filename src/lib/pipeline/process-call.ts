@@ -66,7 +66,7 @@ export async function processCallEnded(event: CallEndedEvent, deps: PipelineDeps
         category: "unsure",
         escalation: { reason, urgent: false },
         skippedAnalysis: event.status === "missed" ? "missed" : "too_short",
-        context: { callerId, name: null, reasons: [], transcriptUrl: `${appBase()}/dashboard/calls/${callId}`, usesTelegram: null },
+        context: { callerId, name: null, reasons: [], summary: null, transcriptUrl: `${appBase()}/dashboard/calls/${callId}`, usesTelegram: null },
       };
       await runRoute(result);
       return result;
@@ -112,6 +112,7 @@ export async function processCallEnded(event: CallEndedEvent, deps: PipelineDeps
         callerId,
         name: analysis.fields.name,
         reasons: outcome.reasons,
+        summary: analysis.fields.caller_asked_about,
         transcriptUrl: `${base}/dashboard/calls/${callId}`,
         usesTelegram: analysis.assessment.uses_telegram,
       },
