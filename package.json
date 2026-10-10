@@ -19,7 +19,8 @@
     "seed:demo": "tsx scripts/seed-demo.ts",
     "admin:set": "tsx scripts/admin-set-password.ts",
     "vaani:sync": "tsx scripts/vaani-sync.ts",
-    "vaani:create": "tsx scripts/vaani-create-agent.ts"
+    "vaani:create": "tsx scripts/vaani-create-agent.ts",
+    "agent:sim": "tsx scripts/agent-sim.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",

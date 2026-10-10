@@ -1,0 +1,41 @@
+# Re-runs the unit tests and the pretend-caller simulation whenever the agent's instructions, knowledge documents,
+# test callers or the code behind them change. A change that makes the agent worse fails the check.
+# Needs one repository secret: GEMINI_API_KEY. Add this file on GitHub as .github/workflows/agent-sim.yml
+# (GitHub's website lets you create workflow files; the saved login used from this computer cannot).
+name: agent-sim
+on:
+  pull_request:
+    paths:
+      - "prompts/**"
+      - "data/services.md"
+      - "data/qualified.md"
+      - "src/lib/agent-sim/**"
+      - "src/lib/vaani/**"
+      - "scripts/agent-sim.ts"
+      - "tests/**"
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm test
+      - name: Pretend-caller simulation (37 callers, 2 runs each)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-3.8-flash
+          SIM_MIN_PASS_RATE: "0.8"
+        run: npm run agent:sim -- --runs 2
+      - name: Keep the transcripts of any failed calls
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-sim-report
+          path: eval/out/agent-sim.md
