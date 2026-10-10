@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2018 1048" width="2018" height="1048" font-family="Segoe UI, Arial, sans-serif">
+<rect width="2018" height="1048" fill="#ffffff"/>
+<defs><marker id="ar" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#475467"/></marker></defs>
+<text x="24" y="34" font-size="22" font-weight="700" fill="#101828">Aangan Studio phone enquiry agent: as built</text>
+<text x="24" y="58" font-size="13" fill="#475467">Left to right = time during and after one call. Solid arrows = main flow. Dashed = fallback or timed job. Built 10 Oct 2026.</text>
+<rect x="0" y="84" width="2018" height="88" fill="#f8f9fc" stroke="#e4e7ec"/>
+<rect x="0" y="84" width="136" height="88" fill="#eef1f6" stroke="#e4e7ec"/>
+<text x="12" y="133.0" font-size="13" font-weight="700" fill="#344054">Caller and staff</text>
+<rect x="0" y="172" width="2018" height="88" fill="#ffffff" stroke="#e4e7ec"/>
+<rect x="0" y="172" width="136" height="88" fill="#eef1f6" stroke="#e4e7ec"/>
+<text x="12" y="213.0" font-size="13" font-weight="700" fill="#344054">Vaani AI</text>
+<text x="12" y="229.0" font-size="11" font-weight="400" fill="#344054">(the live call)</text>
+<rect x="0" y="260" width="2018" height="88" fill="#f8f9fc" stroke="#e4e7ec"/>
+<rect x="0" y="260" width="136" height="88" fill="#eef1f6" stroke="#e4e7ec"/>
+<text x="12" y="309.0" font-size="13" font-weight="700" fill="#344054">Cal.com</text>
+<rect x="0" y="348" width="2018" height="88" fill="#ffffff" stroke="#e4e7ec"/>
+<rect x="0" y="348" width="136" height="88" fill="#eef1f6" stroke="#e4e7ec"/>
+<text x="12" y="389.0" font-size="13" font-weight="700" fill="#344054">Our app on Vercel</text>
+<text x="12" y="405.0" font-size="11" font-weight="400" fill="#344054">(webhooks + pipeline)</text>
+<rect x="0" y="436" width="2018" height="88" fill="#f8f9fc" stroke="#e4e7ec"/>
+<rect x="0" y="436" width="136" height="88" fill="#eef1f6" stroke="#e4e7ec"/>
+<text x="12" y="477.0" font-size="13" font-weight="700" fill="#344054">Gemini</text>
+<text x="12" y="493.0" font-size="11" font-weight="400" fill="#344054">(after the call only)</text>
+<rect x="0" y="524" width="2018" height="88" fill="#ffffff" stroke="#e4e7ec"/>
+<rect x="0" y="524" width="136" height="88" fill="#eef1f6" stroke="#e4e7ec"/>
+<text x="12" y="573.0" font-size="13" font-weight="700" fill="#344054">Neon database</text>
+<rect x="0" y="612" width="2018" height="88" fill="#f8f9fc" stroke="#e4e7ec"/>
+<rect x="0" y="612" width="136" height="88" fill="#eef1f6" stroke="#e4e7ec"/>
+<text x="12" y="661.0" font-size="13" font-weight="700" fill="#344054">Telegram</text>
+<rect x="0" y="700" width="2018" height="88" fill="#ffffff" stroke="#e4e7ec"/>
+<rect x="0" y="700" width="136" height="88" fill="#eef1f6" stroke="#e4e7ec"/>
+<text x="12" y="749.0" font-size="13" font-weight="700" fill="#344054">HubSpot</text>
+<rect x="0" y="788" width="2018" height="88" fill="#f8f9fc" stroke="#e4e7ec"/>
+<rect x="0" y="788" width="136" height="88" fill="#eef1f6" stroke="#e4e7ec"/>
+<text x="12" y="837.0" font-size="13" font-weight="700" fill="#344054">GitHub, Vercel, timer</text>
+<rect x="0" y="876" width="2018" height="88" fill="#ffffff" stroke="#e4e7ec"/>
+<rect x="0" y="876" width="136" height="88" fill="#eef1f6" stroke="#e4e7ec"/>
+<text x="12" y="917.0" font-size="13" font-weight="700" fill="#344054">Dashboard</text>
+<text x="12" y="933.0" font-size="11" font-weight="400" fill="#344054">(admins only)</text>
+<path d="M309,128 L313,128 L313,216 L327,216" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<path d="M477,216 L495,216" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<path d="M645,216 L663,216" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<path d="M738,248 L738,272" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<text x="744" y="260" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">books</text>
+<path d="M738,184 L738,160" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<text x="744" y="172" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">transfer</text>
+<path d="M813,216 L831,216" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<path d="M981,216 L985,216 L985,392 L999,392" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<text x="989" y="304" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">events</text>
+<path d="M1149,392 L1167,392" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<path d="M1242,424 L1242,536" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<text x="1248" y="480" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">stores</text>
+<path d="M1317,392 L1321,392 L1321,480 L1335,480" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<text x="1325" y="436" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">transcript</text>
+<path d="M1485,480 L1489,480 L1489,392 L1503,392" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<text x="1493" y="436" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">facts + verdicts</text>
+<path d="M1653,392 L1657,392 L1657,656 L1671,656" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<text x="1661" y="524" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">qualified</text>
+<path d="M1653,392 L1825,392 L1825,656 L1839,656" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<text x="1829" y="524" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">unsure / alert</text>
+<path d="M1653,392 L1657,392 L1657,744 L1671,744" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<text x="1661" y="568" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">every caller</text>
+<path d="M1242,336 L1242,360" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<text x="1248" y="348" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">matched by phone</text>
+<path d="M1242,600 L1242,888" fill="none" stroke="#475467" stroke-width="1.6"  marker-end="url(#ar)"/>
+<text x="1248" y="744" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">read</text>
+<path d="M1653,832 L1825,832 L1825,656 L1839,656" fill="none" stroke="#475467" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#ar)"/>
+<text x="1829" y="744" font-size="10.5" fill="#475467" paint-order="stroke" stroke="#ffffff" stroke-width="3">reminders</text>
+<rect x="159" y="96" width="150" height="64" rx="8" fill="#fff4d6" stroke="#c9a227" stroke-width="1.6" />
+<text x="234" y="115" font-size="10.8" text-anchor="middle" fill="#1d2939">Caller phones in</text>
+<text x="234" y="130" font-size="10.8" text-anchor="middle" fill="#1d2939">(browser test now;</text>
+<text x="234" y="145" font-size="10.8" text-anchor="middle" fill="#1d2939">real number later)</text>
+<rect x="663" y="96" width="150" height="64" rx="8" fill="#fff4d6" stroke="#c9a227" stroke-width="1.6" />
+<text x="738" y="115" font-size="10.8" text-anchor="middle" fill="#1d2939">Front-desk person</text>
+<text x="738" y="130" font-size="10.8" text-anchor="middle" fill="#1d2939">gets the transfer</text>
+<rect x="327" y="184" width="150" height="64" rx="8" fill="#efe7ff" stroke="#7a54d6" stroke-width="1.6" />
+<text x="402" y="203" font-size="10.8" text-anchor="middle" fill="#1d2939">Answers live.</text>
+<text x="402" y="218" font-size="10.8" text-anchor="middle" fill="#1d2939">Says: AI assistant,</text>
+<text x="402" y="233" font-size="10.8" text-anchor="middle" fill="#1d2939">call is recorded</text>
+<rect x="495" y="184" width="150" height="64" rx="8" fill="#efe7ff" stroke="#7a54d6" stroke-width="1.6" />
+<text x="570" y="203" font-size="10.8" text-anchor="middle" fill="#1d2939">One question at a time.</text>
+<text x="570" y="218" font-size="10.8" text-anchor="middle" fill="#1d2939">Gate check: real project,</text>
+<text x="570" y="233" font-size="10.8" text-anchor="middle" fill="#1d2939">city, timeline, owner, budget</text>
+<rect x="663" y="184" width="150" height="64" rx="8" fill="#efe7ff" stroke="#7a54d6" stroke-width="1.6" />
+<text x="738" y="203" font-size="10.8" text-anchor="middle" fill="#1d2939">Fit: books a slot.</text>
+<text x="738" y="218" font-size="10.8" text-anchor="middle" fill="#1d2939">Not a fit: kind close.</text>
+<text x="738" y="233" font-size="10.8" text-anchor="middle" fill="#1d2939">Upset: transfers</text>
+<rect x="831" y="184" width="150" height="64" rx="8" fill="#efe7ff" stroke="#7a54d6" stroke-width="1.6" />
+<text x="906" y="203" font-size="10.8" text-anchor="middle" fill="#1d2939">Call ends. Sends events:</text>
+<text x="906" y="218" font-size="10.8" text-anchor="middle" fill="#1d2939">started, transfer,</text>
+<text x="906" y="233" font-size="10.8" text-anchor="middle" fill="#1d2939">post-processing</text>
+<rect x="663" y="272" width="150" height="64" rx="8" fill="#e3f0ff" stroke="#3b82c4" stroke-width="1.6" />
+<text x="738" y="291" font-size="10.8" text-anchor="middle" fill="#1d2939">Check free times</text>
+<text x="738" y="306" font-size="10.8" text-anchor="middle" fill="#1d2939">and book the</text>
+<text x="738" y="321" font-size="10.8" text-anchor="middle" fill="#1d2939">consultation</text>
+<rect x="1167" y="272" width="150" height="64" rx="8" fill="#e3f0ff" stroke="#3b82c4" stroke-width="1.6" />
+<text x="1242" y="291" font-size="10.8" text-anchor="middle" fill="#1d2939">Booking webhook:</text>
+<text x="1242" y="306" font-size="10.8" text-anchor="middle" fill="#1d2939">created / cancelled</text>
+<rect x="999" y="360" width="150" height="64" rx="8" fill="#dff5ea" stroke="#2f9e6e" stroke-width="1.6" />
+<text x="1074" y="379" font-size="10.8" text-anchor="middle" fill="#1d2939">/webhooks/vaani/events</text>
+<text x="1074" y="394" font-size="10.8" text-anchor="middle" fill="#1d2939">secret token checked,</text>
+<text x="1074" y="409" font-size="10.8" text-anchor="middle" fill="#1d2939">answers 200 at once</text>
+<rect x="1167" y="360" width="150" height="64" rx="8" fill="#dff5ea" stroke="#2f9e6e" stroke-width="1.6" />
+<text x="1242" y="379" font-size="10.8" text-anchor="middle" fill="#1d2939">Pipeline: no duplicates,</text>
+<text x="1242" y="394" font-size="10.8" text-anchor="middle" fill="#1d2939">merge repeat calls (60 min),</text>
+<text x="1242" y="409" font-size="10.8" text-anchor="middle" fill="#1d2939">attach waiting booking</text>
+<rect x="1503" y="360" width="150" height="64" rx="8" fill="#dff5ea" stroke="#2f9e6e" stroke-width="1.6" />
+<text x="1578" y="379" font-size="10.8" text-anchor="middle" fill="#1d2939">Rules in code: budget,</text>
+<text x="1578" y="394" font-size="10.8" text-anchor="middle" fill="#1d2939">category, score,</text>
+<text x="1578" y="409" font-size="10.8" text-anchor="middle" fill="#1d2939">handoff note, costs</text>
+<rect x="1335" y="448" width="150" height="64" rx="8" fill="#ffe7e2" stroke="#e0654d" stroke-width="1.6" />
+<text x="1410" y="467" font-size="10.8" text-anchor="middle" fill="#1d2939">1. Extract the facts</text>
+<text x="1410" y="482" font-size="10.8" text-anchor="middle" fill="#1d2939">2. Judge 4 criteria</text>
+<text x="1410" y="497" font-size="10.8" text-anchor="middle" fill="#1d2939">(never on the call)</text>
+<rect x="1167" y="536" width="150" height="64" rx="8" fill="#e8eaf0" stroke="#667085" stroke-width="1.6" />
+<text x="1242" y="555" font-size="10.8" text-anchor="middle" fill="#1d2939">Callers, calls, transcripts,</text>
+<text x="1242" y="570" font-size="10.8" text-anchor="middle" fill="#1d2939">enquiries, handoffs,</text>
+<text x="1242" y="585" font-size="10.8" text-anchor="middle" fill="#1d2939">bookings, costs, settings</text>
+<rect x="1671" y="624" width="150" height="64" rx="8" fill="#e0f4fb" stroke="#1f9bd0" stroke-width="1.6" />
+<text x="1746" y="643" font-size="10.8" text-anchor="middle" fill="#1d2939">Designers&#x27; group:</text>
+<text x="1746" y="658" font-size="10.8" text-anchor="middle" fill="#1d2939">handoff + Accept button</text>
+<text x="1746" y="673" font-size="10.8" text-anchor="middle" fill="#1d2939">(booked time shown)</text>
+<rect x="1839" y="624" width="150" height="64" rx="8" fill="#e0f4fb" stroke="#1f9bd0" stroke-width="1.6" />
+<text x="1914" y="643" font-size="10.8" text-anchor="middle" fill="#1d2939">Front desk: complaint,</text>
+<text x="1914" y="658" font-size="10.8" text-anchor="middle" fill="#1d2939">missed call, doubtful</text>
+<text x="1914" y="673" font-size="10.8" text-anchor="middle" fill="#1d2939">budget / owner / size</text>
+<rect x="831" y="624" width="150" height="64" rx="8" fill="#e0f4fb" stroke="#1f9bd0" stroke-width="1.6" stroke-dasharray="5 3"/>
+<text x="906" y="643" font-size="10.8" text-anchor="middle" fill="#1d2939">Fallback only: caller taps</text>
+<text x="906" y="658" font-size="10.8" text-anchor="middle" fill="#1d2939">Start on the bot, shares</text>
+<text x="906" y="673" font-size="10.8" text-anchor="middle" fill="#1d2939">number, gets booking link</text>
+<rect x="1671" y="712" width="150" height="64" rx="8" fill="#ffeedd" stroke="#e8833a" stroke-width="1.6" />
+<text x="1746" y="731" font-size="10.8" text-anchor="middle" fill="#1d2939">Contact for every caller.</text>
+<text x="1746" y="746" font-size="10.8" text-anchor="middle" fill="#1d2939">Deal if qualified.</text>
+<text x="1746" y="761" font-size="10.8" text-anchor="middle" fill="#1d2939">Moves to Meeting Booked</text>
+<rect x="1503" y="800" width="150" height="64" rx="8" fill="#f0f0f0" stroke="#8a8a8a" stroke-width="1.6" />
+<text x="1578" y="819" font-size="10.8" text-anchor="middle" fill="#1d2939">Timer every 5 min:</text>
+<text x="1578" y="834" font-size="10.8" text-anchor="middle" fill="#1d2939">nudges, reminders,</text>
+<text x="1578" y="849" font-size="10.8" text-anchor="middle" fill="#1d2939">overdue handoffs</text>
+<rect x="327" y="800" width="150" height="64" rx="8" fill="#f0f0f0" stroke="#8a8a8a" stroke-width="1.6" />
+<text x="402" y="819" font-size="10.8" text-anchor="middle" fill="#1d2939">Push to GitHub, Vercel</text>
+<text x="402" y="834" font-size="10.8" text-anchor="middle" fill="#1d2939">deploys. Instructions</text>
+<text x="402" y="849" font-size="10.8" text-anchor="middle" fill="#1d2939">sync with vaani:sync</text>
+<rect x="1167" y="888" width="150" height="64" rx="8" fill="#fff0f6" stroke="#c2447e" stroke-width="1.6" />
+<text x="1242" y="907" font-size="10.8" text-anchor="middle" fill="#1d2939">Calls, outcomes, costs,</text>
+<text x="1242" y="922" font-size="10.8" text-anchor="middle" fill="#1d2939">follow-ups, transcripts.</text>
+<text x="1242" y="937" font-size="10.8" text-anchor="middle" fill="#1d2939">Login for 2 admins</text>
+<text x="24" y="990" font-size="12.5" font-weight="700" fill="#101828">Not used, by choice:</text>
+<text x="160" y="990" font-size="12.5" fill="#344054">no SMS service (the SMS cost line stays at 0; booking happens on the call, Telegram is only the fallback) · no phone number bought (browser test calls get a made-up +915000... number in demo mode) · pricing guide never given to the live agent.</text>
+<text x="24" y="1014" font-size="12.5" font-weight="700" fill="#101828">Checks along the way:</text>
+<text x="160" y="1014" font-size="12.5" fill="#344054">duplicate webhooks are ignored · every failure alerts the front desk · agent tested with 37 pretend callers · 101 automated tests · repeat calls within 60 minutes merge into one enquiry.</text>
+</svg>
