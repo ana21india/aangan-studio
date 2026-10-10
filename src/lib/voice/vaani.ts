@@ -1,4 +1,4 @@
-import { timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import type { CallEndedEvent, CallStatus } from "./types";
 
 // Real Vaani (vaanivoice.ai) events, as documented at docs.vaanivoice.ai/guides/webhook-setup. Field names are
@@ -71,7 +71,16 @@ export interface VaaniBody {
 
 const MIN_TRANSCRIPT_CHARS = 120;
 
+// A web (browser) test call has no phone number. When the owner switches on ALLOW_UNKNOWN_CALLERS (demo mode),
+// such a call gets a stable made-up number. It starts with 5, which no Indian mobile does, so it can never
+// reach a real person. Off by default: real calls without a number are refused (DECISIONS.md D-056).
+export function syntheticPhone(roomName: string): string {
+  const n = parseInt(createHash("sha256").update(roomName).digest("hex").slice(0, 8), 16) % 1_000_000;
+  return `+915000${String(n).padStart(6, "0")}`;
+}
+
 export interface VaaniDeps {
+  allowUnknownCaller?: boolean;
   sessions: VaaniSessionStore;
   process: (event: CallEndedEvent) => Promise<unknown>;
   now?: () => Date;
@@ -113,7 +122,7 @@ export async function handleVaaniWebhook(body: VaaniBody, deps: VaaniDeps): Prom
     await deps.process({
       providerCallId: d.call_id ?? body.call_id ?? room ?? `vaani-${now.getTime()}`,
       channel: "phone",
-      callerPhone: session?.phone ?? null,
+      callerPhone: session?.phone ?? (deps.allowUnknownCaller && room ? syntheticPhone(room) : null),
       startedAt,
       endedAt,
       durationSec,

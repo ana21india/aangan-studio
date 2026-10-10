@@ -17,6 +17,8 @@ export const CONFIG_DEFAULTS = {
   RETENTION_TRANSCRIPT_DAYS: 365,
   OFFICE_HOURS_START: 10,
   OFFICE_HOURS_END: 19,
+  // Demo mode: let a call with no phone number (a browser test call) through with a made-up number.
+  ALLOW_UNKNOWN_CALLERS: false,
 } as const;
 
 export type AppConfig = {
@@ -24,7 +26,9 @@ export type AppConfig = {
     ? number
     : (typeof CONFIG_DEFAULTS)[K] extends string
       ? string
-      : (typeof CONFIG_DEFAULTS)[K];
+      : (typeof CONFIG_DEFAULTS)[K] extends boolean
+        ? boolean
+        : (typeof CONFIG_DEFAULTS)[K];
 };
 
 export function mergeConfig(overrides: Record<string, unknown>): AppConfig {

@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { productionPipelineDeps } from "@/lib/notify/wire";
 import { processCallEnded } from "@/lib/pipeline/process-call";
+import { PgStore } from "@/lib/pipeline/store-pg";
 import { handleVaaniWebhook, verifyToken, type VaaniBody } from "@/lib/voice/vaani";
 import { PgVaaniSessions } from "@/lib/voice/vaani-sessions";
 
@@ -22,7 +23,10 @@ export async function POST(request: Request) {
 
   after(async () => {
     try {
+      console.log(`vaani event: ${body.event ?? body.type ?? "unknown"}`);
+      const cfg = await new PgStore().getConfig();
       await handleVaaniWebhook(body, {
+        allowUnknownCaller: cfg.ALLOW_UNKNOWN_CALLERS === true,
         sessions: new PgVaaniSessions(),
         process: async (event) => processCallEnded(event, await productionPipelineDeps()),
       });

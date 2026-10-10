@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { assertNoPricing, buildPayloads, buildSystemPrompt, faqFrom, GREETING, redactAmounts } from "../src/lib/vaani/build";
-import { handleVaaniWebhook, normalisePhoneNumber, verifyToken } from "../src/lib/voice/vaani";
+import { handleVaaniWebhook, normalisePhoneNumber, syntheticPhone, verifyToken } from "../src/lib/voice/vaani";
 import { MemoryVaaniSessions } from "../src/lib/voice/vaani-sessions";
 import type { CallEndedEvent } from "../src/lib/voice/types";
 
@@ -58,6 +58,26 @@ describe("Vaani events", () => {
     const { seen, deps } = setup();
     await handleVaaniWebhook(post(), deps);
     expect(seen[0].callerPhone).toBeNull();
+  });
+
+  it("gives a web test call a made-up, unreal number only when demo mode is on", async () => {
+    const off = setup();
+    await handleVaaniWebhook(post(), off.deps);
+    expect(off.seen[0].callerPhone).toBeNull();
+
+    const on = setup();
+    await handleVaaniWebhook(post(), { ...on.deps, allowUnknownCaller: true });
+    await handleVaaniWebhook(post({ call_id: "call-9", data: { room_name: ROOM, call_id: "call-9", call_duration: 90_000, transcript: LONG } }), { ...on.deps, allowUnknownCaller: true });
+    expect(on.seen[0].callerPhone).toMatch(/^\+915000\d{6}$/);
+    expect(on.seen[1].callerPhone).toBe(on.seen[0].callerPhone); // the same room always maps to the same number
+    expect(syntheticPhone("room-other")).not.toBe(syntheticPhone(ROOM));
+  });
+
+  it("never replaces a real number with a made-up one", async () => {
+    const { seen, deps } = setup();
+    await handleVaaniWebhook({ event: "call_started", room_name: ROOM, phone_number: "919876543210" }, { ...deps, allowUnknownCaller: true });
+    await handleVaaniWebhook(post(), { ...deps, allowUnknownCaller: true });
+    expect(seen[0].callerPhone).toBe("+919876543210");
   });
 
   it("accepts a transcript sent as a list of turns", async () => {
