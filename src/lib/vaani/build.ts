@@ -27,6 +27,14 @@ export function assertNoPricing(text: string, pricingDoc: string): void {
   }
 }
 
+// Words the speech recogniser should favour: Pune areas from services.md and the terms callers use.
+export const SPEECH_KEYWORDS = [
+  "Aangan", "BHK", "square feet", "carpet area", "possession", "handover",
+  "Kothrud", "Baner", "Aundh", "Wakad", "Koregaon Park", "Kalyani Nagar", "Viman Nagar", "Hadapsar", "Magarpatta", "NIBM",
+  "Kondhwa", "Undri", "Shivane", "Warje", "Erandwane", "Deccan", "Pimpri", "Chinchwad", "Pimple Saudagar", "Pimple Nilakh",
+  "Ravet", "Hinjewadi", "Pune", "PCMC", "modular kitchen", "wardrobe", "interior",
+];
+
 export const GREETING = "Hello, you've reached Aangan Studio. I'm the studio's AI assistant, and this call is recorded. How can I help you today?";
 
 export interface VaaniPayloads {
@@ -57,7 +65,7 @@ export function buildPayloads(systemPrompt: string, faq: Record<string, string>)
         // Low temperature: the agent must stick to what the caller said and what the documents say.
         // Short replies (max_tokens) also keep a phone call snappy.
         brain: { llm: { primary: { provider: "openai", model: "gpt-4o-mini", parameters: { temperature: 0.2, top_p: 1, max_tokens: 300 } } } },
-        ears: { stt: { primary: { language: "en" } } },
+        ears: { stt: { primary: { language: "en", keywords: SPEECH_KEYWORDS } } },
         mouth: { tts: { primary: { language: "en", config: { language: "en" } } } },
       },
     },
