@@ -48,7 +48,14 @@ export function buildPayloads(systemPrompt: string, faq: Record<string, string>)
           let_user_speak_first: false,
         },
       },
-      senses_capabilities: { language: "en", auto_detect: true },
+      // The starter template listened and spoke in Hindi; set both ends to English. Hindi and Marathi callers are
+      // followed through auto-detect (quality to be judged on the first live test calls).
+      senses_capabilities: {
+        language: "en",
+        auto_detect: true,
+        ears: { stt: { primary: { language: "en" } } },
+        mouth: { tts: { primary: { language: "en", config: { language: "en" } } } },
+      },
     },
     training: {
       knowledge: { use_rag: false },
