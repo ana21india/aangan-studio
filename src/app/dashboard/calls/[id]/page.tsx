@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/admins";
+import { isPublicDemo } from "@/lib/auth/demo";
 import { callDetail } from "@/lib/dashboard/queries";
-import { CATEGORY_LABEL, duration, hubspotUrl, inr, istDateTime, REASON_LABEL } from "@/lib/dashboard/format";
+import { CATEGORY_LABEL, duration, hubspotUrl, inr, istDateTime, maskedPhone, REASON_LABEL } from "@/lib/dashboard/format";
 
 type Criterion = { status: "pass" | "fail" | "unclear"; reason: string };
 const CRITERIA: [string, string][] = [
@@ -34,7 +35,7 @@ export default async function CallPage({ params }: { params: Promise<{ id: strin
       <p className="text-sm"><Link className="text-accent underline" href="/dashboard/calls">← All calls</Link></p>
       <div>
         <h1 className="text-xl font-semibold text-ink">{(enquiry?.name as string) ?? (call.caller_name as string) ?? "Unknown caller"}</h1>
-        <p className="mt-1 text-sm text-ink2 num">{call.phone as string} · {istDateTime(call.started_at as string)} IST · {call.channel as string} · {call.status as string}{call.in_hours === false ? " · after hours" : ""} · {duration(call.duration_sec as number | null)}</p>
+        <p className="mt-1 text-sm text-ink2 num">{isPublicDemo() ? maskedPhone(call.phone as string) : (call.phone as string)} · {istDateTime(call.started_at as string)} IST · {call.channel as string} · {call.status as string}{call.in_hours === false ? " · after hours" : ""} · {duration(call.duration_sec as number | null)}</p>
         <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
           {dealUrl && <a className="text-accent underline" href={dealUrl} target="_blank" rel="noreferrer">Open the deal in HubSpot</a>}
           {contactUrl && <a className="text-accent underline" href={contactUrl} target="_blank" rel="noreferrer">Open the contact in HubSpot</a>}

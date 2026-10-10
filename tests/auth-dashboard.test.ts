@@ -94,3 +94,18 @@ describe("display helpers", () => {
     expect(hubspotUrl("contact", "7")).toBe("https://app-na2.hubspot.com/contacts/999/record/0-1/7");
   });
 });
+
+describe("public demo mode", () => {
+  it("is off unless the switch is exactly 'true'", async () => {
+    const { isPublicDemo } = await import("../src/lib/auth/demo");
+    delete process.env.DASHBOARD_PUBLIC_DEMO;
+    expect(isPublicDemo()).toBe(false);
+    for (const v of ["false", "1", "TRUE", "yes", ""]) {
+      process.env.DASHBOARD_PUBLIC_DEMO = v;
+      expect(isPublicDemo()).toBe(false);
+    }
+    process.env.DASHBOARD_PUBLIC_DEMO = "true";
+    expect(isPublicDemo()).toBe(true);
+    delete process.env.DASHBOARD_PUBLIC_DEMO;
+  });
+});

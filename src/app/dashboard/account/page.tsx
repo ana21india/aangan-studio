@@ -1,7 +1,10 @@
+import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/admins";
+import { isPublicDemo } from "@/lib/auth/demo";
 import { PasswordForm } from "./password-form";
 
 export default async function AccountPage() {
+  if (isPublicDemo()) redirect("/dashboard"); // no accounts in public demo mode
   const admin = await requireAdmin({ allowMustChange: true });
   return (
     <section>

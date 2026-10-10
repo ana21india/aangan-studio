@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { query } from "../db";
+import { isPublicDemo } from "./demo";
 import { sessionEmail } from "./session";
 
 export interface Admin {
@@ -43,6 +44,8 @@ export async function setPassword(email: string, hash: string, mustChange: boole
 
 // Every dashboard page calls this first. Not signed in (or removed from the admin list) means back to the login page.
 export async function requireAdmin(opts: { allowMustChange?: boolean } = {}): Promise<Admin> {
+  // Public demo mode: a read-only guest, no sign-in needed.
+  if (isPublicDemo()) return { email: "guest (public demo)", name: "Guest", passwordHash: null, mustChange: false, failedAttempts: 0, lockedUntil: null };
   const email = await sessionEmail();
   const admin = email ? await findAdmin(email) : null;
   if (!admin || !admin.passwordHash) redirect("/login");

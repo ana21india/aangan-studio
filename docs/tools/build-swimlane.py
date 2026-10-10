@@ -55,7 +55,7 @@ box("FB", 6, 1860, 250, "Fallback booking link", ["Telegram bot sends the link",
 box("T1", 7, 1860, 250, "Handoff note", ["Telegram: designers' group", "with Accept button"], "out")
 box("FD", 8, 1480, 190, "Front desk", ["Callback / transfer"], "esc")
 box("DA", 8, 1860, 250, "Designer accepts", ["Calls with full context"], "out")
-box("ND", 9, 1860, 250, "Dashboard", ["Calls, outcomes, cost per call", "login, on Vercel"], "out")
+box("ND", 9, 1860, 250, "Dashboard", ["Calls, outcomes, cost per call", "login, or public demo view"], "out")
 box("GH1", 10, 705, 200, "Code repo", ["Code + prompts versioned"], "build")
 box("GH2", 10, 935, 200, "Follow-up timer", ["every 5 min: nudges,", "reminders, overdue"], "build")
 
