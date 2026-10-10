@@ -81,15 +81,11 @@ describe("Vaani events", () => {
   });
 
   it("works out the call length from the transcript's clock times when Vaani sends none", async () => {
-    expect(durationFromTranscript("[13:43:05] AGENT: Hello
-[13:43:14] USER: Hi
-[13:45:35] AGENT: Bye")).toBe(150);
-    expect(durationFromTranscript("[23:59:50] AGENT: a
-[00:00:20] USER: b")).toBe(30);
+    expect(durationFromTranscript("[13:43:05] AGENT: Hello\n[13:43:14] USER: Hi\n[13:45:35] AGENT: Bye")).toBe(150);
+    expect(durationFromTranscript("[23:59:50] AGENT: a\n[00:00:20] USER: b")).toBe(30);
     expect(durationFromTranscript("AGENT: no clock times")).toBeNull();
     const { seen, deps } = setup();
-    await handleVaaniWebhook(post({ data: { room_name: ROOM, call_id: "c-dur", transcript: `[13:43:05] AGENT: ${LONG}
-[13:45:35] USER: bye` } }), deps);
+    await handleVaaniWebhook(post({ data: { room_name: ROOM, call_id: "c-dur", transcript: `[13:43:05] AGENT: ${LONG}\n[13:45:35] USER: bye` } }), deps);
     expect(seen[0].durationSec).toBe(150);
   });
 
