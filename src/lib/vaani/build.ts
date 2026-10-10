@@ -53,8 +53,10 @@ export function buildPayloads(systemPrompt: string, faq: Record<string, string>)
       senses_capabilities: {
         language: "en",
         auto_detect: true,
+        // A fast, non-"thinking" model keeps phone replies quick (Vaani's default, gemini-3.5-flash, pauses to think).
         // Low temperature: the agent must stick to what the caller said and what the documents say.
-        brain: { llm: { primary: { parameters: { temperature: 0.2, top_p: 1 } } } },
+        // Short replies (max_tokens) also keep a phone call snappy.
+        brain: { llm: { primary: { provider: "openai", model: "gpt-4o-mini", parameters: { temperature: 0.2, top_p: 1, max_tokens: 300 } } } },
         ears: { stt: { primary: { language: "en" } } },
         mouth: { tts: { primary: { language: "en", config: { language: "en" } } } },
       },

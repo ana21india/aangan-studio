@@ -145,6 +145,14 @@ describe("what we push to Vaani", () => {
     expect(p.persona.identity.greeting_message.interruptible).toBe(false);
   });
 
+  it("uses a fast model with short replies, and forbids filler reactions and tool names", () => {
+    const p = buildPayloads("prompt", {}) as { persona: { senses_capabilities: { brain: { llm: { primary: { model: string; parameters: { max_tokens: number } } } } } } };
+    expect(p.persona.senses_capabilities.brain.llm.primary.model).toBe("gpt-4o-mini");
+    expect(p.persona.senses_capabilities.brain.llm.primary.parameters.max_tokens).toBeLessThanOrEqual(300);
+    expect(template).toMatch(/Never mention Calendly/);
+    expect(template).toMatch(/do not react to it/);
+  });
+
   it("the FAQ never answers a price question with a number", () => {
     const faq = faqFrom(JSON.parse(readFileSync("prompts/vaani_faq.json", "utf-8")));
     for (const [q, a] of Object.entries(faq)) {
