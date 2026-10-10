@@ -54,6 +54,19 @@ export interface BookingRecord {
   attendeePhone: string | null;
 }
 
+export interface AttachedBooking {
+  calBookingId: string;
+  scheduledFor: Date | null;
+}
+
+export interface UnmatchedBooking {
+  id: string;
+  calBookingId: string;
+  name: string | null;
+  phone: string | null;
+  scheduledFor: Date | null;
+}
+
 export type AcceptResult = { accepted: true } | { accepted: false; by: string | null };
 
 // Everything the Telegram side needs from storage. Tests use an in-memory version.
@@ -88,4 +101,8 @@ export interface NotifyStore {
   // Cal.com bookings (Milestone 4)
   findLatestQualifiedByPhoneForBooking(phone: string, since: Date): Promise<(EnquiryContext & { dealId: string | null }) | null>;
   upsertBooking(b: BookingRecord): Promise<void>;
+  /** A booking made during the call, waiting for its enquiry. Attaches the newest one for this number. */
+  attachPendingBooking(enquiryId: string, phone: string, since: Date): Promise<AttachedBooking | null>;
+  unmatchedBookingsDue(cutoff: Date): Promise<UnmatchedBooking[]>;
+  markBookingAlerted(id: string): Promise<void>;
 }

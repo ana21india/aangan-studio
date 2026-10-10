@@ -77,3 +77,6 @@ export const bookingCancelledAlert = (name: string | null, phone: string | null,
 
 export const bookingUnmatchedAlert = (name: string | null, phone: string | null, when: string) =>
   [`❓ Booking from someone we cannot match`, who(name, phone), `When: ${when}`, "No recent qualified enquiry found for that number. Please check who this is."].join("\n");
+
+export const bookedButNotQualifiedAlert = (name: string | null, phone: string, when: string, category: string) =>
+  [`🔎 Booked during the call, but assessed as "${category.replace("_", " ")}"`, who(name, phone), `Consultation: ${when}`, "The agent booked a consultation for someone the scoring did not rate as qualified. Please check before a designer goes."].join("\n");

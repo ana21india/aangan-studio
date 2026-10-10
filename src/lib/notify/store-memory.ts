@@ -1,5 +1,5 @@
 import type {
-  BookingRecord, CallerCrm, AcceptResult, DueLink, EnquiryContext, LinkRow, NotifyStore, OverdueHandoff, StaleEscalation,
+  AttachedBooking, UnmatchedBooking, BookingRecord, CallerCrm, AcceptResult, DueLink, EnquiryContext, LinkRow, NotifyStore, OverdueHandoff, StaleEscalation,
 } from "./store";
 
 // In-memory stand-in for tests.
@@ -77,4 +77,17 @@ export class MemoryNotifyStore implements NotifyStore {
     if (i >= 0) this.bookingRows[i] = { ...b, enquiryId: this.bookingRows[i].enquiryId ?? b.enquiryId };
     else this.bookingRows.push(b);
   }
+
+  alertedBookings = new Set<string>();
+  async attachPendingBooking(enquiryId: string, phone: string): Promise<AttachedBooking | null> {
+    const b = [...this.bookingRows].reverse().find((x) => !x.enquiryId && x.status === "booked" && x.attendeePhone === phone);
+    if (!b) return null;
+    b.enquiryId = enquiryId;
+    return { calBookingId: b.calBookingId, scheduledFor: b.scheduledFor };
+  }
+  async unmatchedBookingsDue(): Promise<UnmatchedBooking[]> {
+    return this.bookingRows.filter((b) => !b.enquiryId && b.status === "booked" && !this.alertedBookings.has(b.calBookingId))
+      .map((b) => ({ id: b.calBookingId, calBookingId: b.calBookingId, name: b.attendeeName, phone: b.attendeePhone, scheduledFor: b.scheduledFor }));
+  }
+  async markBookingAlerted(id: string) { this.alertedBookings.add(id); }
 }

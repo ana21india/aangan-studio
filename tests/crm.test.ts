@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { extractPhone, handleBooking, type CalWebhook } from "../src/lib/calcom/bookings";
 import type { Crm } from "../src/lib/crm/hubspot";
 import { syncToCrm } from "../src/lib/crm/sync";
+import { runFollowups } from "../src/lib/notify/followups";
 import { makeRouter } from "../src/lib/notify/router";
 import { MemoryNotifyStore } from "../src/lib/notify/store-memory";
 import type { PipelineResult } from "../src/lib/pipeline/store";
@@ -122,13 +123,13 @@ describe("Cal.com bookings", () => {
     expect(notify.bookingRows).toHaveLength(1);
   });
 
-  it("alerts the front desk when the booking cannot be tied to an enquiry", async () => {
+  it("stores a booking made during the call quietly, to be matched when the call is processed", async () => {
     const b = booking();
     b.payload!.responses = { attendeePhoneNumber: { value: "+91 88888 88888" } };
     const r = await run(b);
     expect(r.matched).toBe(false);
     expect(notify.bookingRows[0].enquiryId).toBeNull();
-    expect(tg.to(FRONTDESK)[0].text).toMatch(/cannot match/);
+    expect(tg.sent).toHaveLength(0);
     expect(crm.moves).toHaveLength(0);
   });
 
@@ -147,5 +148,56 @@ describe("Cal.com bookings", () => {
     expect(extractPhone({ responses: { attendeePhoneNumber: { value: "+915000000001" } } })).toBe(PHONE);
     expect(extractPhone({ attendees: [{ phoneNumber: "+915000000001" }] })).toBe(PHONE);
     expect(extractPhone({ responses: {} })).toBeNull();
+  });
+});
+
+describe("consultation booked during the call (Vaani + Cal.com)", () => {
+  const NEWPHONE = "+918888888888";
+  const router = () => makeRouter({ tg, notify, cfg, env: { ...env, hubspotStageBooked: "stage-booked" }, crm, now: () => NOW });
+  const ctx = { event: event(), callerPhone: NEWPHONE };
+  const waitingBooking = () => notify.bookingRows.push({ calBookingId: "bk-call", enquiryId: null, scheduledFor: new Date("2026-10-12T05:00:00Z"), status: "booked", attendeeName: "Priya", attendeePhone: NEWPHONE });
+
+  beforeEach(() => {
+    notify.enquiries.set("e2", { enquiryId: "e2", callerId: "k2", phone: NEWPHONE, name: "Priya Shah", qualified: true, createdAt: NOW });
+    notify.callerCrm.set("k2", { name: null, phone: NEWPHONE, hubspotContactId: null });
+  });
+
+  const result2 = (over: Partial<PipelineResult> = {}): PipelineResult => ({
+    duplicate: false, callId: "c2", enquiryId: "e2", category: "qualified", escalation: null,
+    handoffNote: "New qualified enquiry · score 9/10", alreadyHandedOff: false,
+    context: { callerId: "k2", name: "Priya Shah", reasons: [], summary: null, dealName: "Priya Shah · Baner", transcriptUrl: "https://x/t/2", usesTelegram: null },
+    ...over,
+  });
+
+  it("tells the designers it is already booked, skips the Telegram-link steps, and moves the deal to Meeting booked", async () => {
+    waitingBooking();
+    await router()(result2(), ctx);
+    expect(tg.to(DESIGNERS)[0].text).toMatch(/Consultation already booked/);
+    expect(notify.bookingRows[0].enquiryId).toBe("e2");
+    expect(notify.links).toHaveLength(0);
+    expect(crm.deals).toHaveLength(1);
+    expect(crm.moves).toEqual([{ dealId: "deal-1", stage: "stage-booked" }]);
+  });
+
+  it("falls back to the Telegram link steps when the caller did not book during the call", async () => {
+    await router()(result2(), ctx);
+    expect(tg.to(DESIGNERS)[0].text).not.toMatch(/already booked/);
+    expect(notify.links).toHaveLength(1);
+    expect(crm.moves).toHaveLength(0);
+  });
+
+  it("asks the front desk to check when someone booked but was not rated qualified", async () => {
+    waitingBooking();
+    await router()(result2({ category: "not_qualified", handoffNote: null }), ctx);
+    expect(tg.to(FRONTDESK)[0].text).toMatch(/Booked during the call/);
+    expect(tg.to(DESIGNERS)).toHaveLength(0);
+  });
+
+  it("tells the front desk once if a booking never gets matched", async () => {
+    waitingBooking();
+    const run = () => runFollowups({ notify, tg, cfg, env, botUsername: "Bot", now: NOW });
+    expect((await run()).unmatchedBookings).toBe(1);
+    expect(tg.to(FRONTDESK)[0].text).toMatch(/cannot match/);
+    expect((await run()).unmatchedBookings).toBe(0);
   });
 });

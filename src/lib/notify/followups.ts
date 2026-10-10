@@ -1,8 +1,8 @@
 import { bookingLink, startLink } from "../booking";
 import type { AppConfig } from "../config-defaults";
-import { isInHours } from "../pipeline/hours";
+import { formatIst, isInHours } from "../pipeline/hours";
 import type { TelegramClient } from "../telegram/client";
-import { morningAlert, nudgeAlert, overdueAlert, staleCallbackAlert } from "./messages";
+import { bookingUnmatchedAlert, morningAlert, nudgeAlert, overdueAlert, staleCallbackAlert } from "./messages";
 import type { RouterEnv } from "./router";
 import type { NotifyStore } from "./store";
 
@@ -11,6 +11,7 @@ export interface FollowupSummary {
   mornings: number;
   overdue: number;
   staleCallbacks: number;
+  unmatchedBookings: number;
   errors: string[];
 }
 
@@ -26,7 +27,7 @@ export async function runFollowups(deps: {
 }): Promise<FollowupSummary> {
   const { notify, tg, cfg, env, botUsername } = deps;
   const now = deps.now ?? new Date();
-  const out: FollowupSummary = { nudges: 0, mornings: 0, overdue: 0, staleCallbacks: 0, errors: [] };
+  const out: FollowupSummary = { nudges: 0, mornings: 0, overdue: 0, staleCallbacks: 0, unmatchedBookings: 0, errors: [] };
   const guard = async (label: string, fn: () => Promise<void>) => {
     try { await fn(); } catch (e) { out.errors.push(`${label}: ${e instanceof Error ? e.message : e}`); }
   };
@@ -67,6 +68,15 @@ export async function runFollowups(deps: {
       await notify.markEscalationRealerted(s.id);
       await tg.sendMessage(env.frontDeskChatId, staleCallbackAlert(s.reason, s.name, s.phone));
       out.staleCallbacks++;
+    });
+  }
+
+  // A booking still not tied to any enquiry 30 minutes after it was made: tell the front desk once.
+  for (const b of await notify.unmatchedBookingsDue(new Date(now.getTime() - 30 * 60_000))) {
+    await guard(`booking ${b.id}`, async () => {
+      await notify.markBookingAlerted(b.id);
+      await tg.sendMessage(env.frontDeskChatId, bookingUnmatchedAlert(b.name, b.phone, b.scheduledFor ? formatIst(b.scheduledFor) : "time unknown"));
+      out.unmatchedBookings++;
     });
   }
   return out;

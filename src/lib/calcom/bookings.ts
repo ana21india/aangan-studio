@@ -1,5 +1,5 @@
 import type { Crm } from "../crm/hubspot";
-import { bookingAlert, bookingCancelledAlert, bookingUnmatchedAlert } from "../notify/messages";
+import { bookingAlert, bookingCancelledAlert } from "../notify/messages";
 import type { RouterEnv } from "../notify/router";
 import type { NotifyStore } from "../notify/store";
 import { formatIst } from "../pipeline/hours";
@@ -57,13 +57,13 @@ export async function handleBooking(
   });
 
   if (cancelled) {
-    await tg.sendMessage(env.designersChatId, bookingCancelledAlert(enquiry?.name ?? name, phone, when));
+    if (enquiry) await tg.sendMessage(env.designersChatId, bookingCancelledAlert(enquiry.name ?? name, phone, when));
     return { handled: true, matched: !!enquiry };
   }
 
   if (!enquiry) {
-    // Never lose a booking: someone booked with a number we cannot tie to an enquiry.
-    await tg.sendMessage(env.frontDeskChatId, bookingUnmatchedAlert(name, phone, when));
+    // A booking made during the call arrives before the call-ended event creates the enquiry. It waits, stored and
+    // unmatched; the call pipeline attaches it, and the follow-up timer tells the front desk if it never matches.
     return { handled: true, matched: false };
   }
 

@@ -1,6 +1,6 @@
 import { query } from "../db";
 import type {
-  BookingRecord, CallerCrm, AcceptResult, DueLink, EnquiryContext, LinkRow, NotifyStore, OverdueHandoff, StaleEscalation,
+  AttachedBooking, UnmatchedBooking, BookingRecord, CallerCrm, AcceptResult, DueLink, EnquiryContext, LinkRow, NotifyStore, OverdueHandoff, StaleEscalation,
 } from "./store";
 
 type LinkSql = {
@@ -164,5 +164,25 @@ export class PgNotifyStore implements NotifyStore {
              cancelled_at = case when excluded.status = 'cancelled' then now() else null end,
              updated_at = now()`,
       [b.enquiryId, b.calBookingId, b.scheduledFor?.toISOString() ?? null, b.status, b.attendeeName, b.attendeePhone]);
+  }
+
+  async attachPendingBooking(enquiryId: string, phone: string, since: Date): Promise<AttachedBooking | null> {
+    const r = await query<{ cal_booking_id: string; scheduled_for: string | null }>(
+      `update bookings set enquiry_id = $1, updated_at = now()
+       where id = (select id from bookings where enquiry_id is null and status = 'booked' and attendee_phone = $2 and created_at >= $3
+                   order by created_at desc limit 1)
+       returning cal_booking_id, scheduled_for`, [enquiryId, phone, since.toISOString()]);
+    return r[0] ? { calBookingId: r[0].cal_booking_id, scheduledFor: r[0].scheduled_for ? new Date(r[0].scheduled_for) : null } : null;
+  }
+
+  async unmatchedBookingsDue(cutoff: Date): Promise<UnmatchedBooking[]> {
+    const r = await query<{ id: string; cal_booking_id: string; attendee_name: string | null; attendee_phone: string | null; scheduled_for: string | null }>(
+      `select id, cal_booking_id, attendee_name, attendee_phone, scheduled_for from bookings
+       where enquiry_id is null and status = 'booked' and alerted_at is null and created_at <= $1`, [cutoff.toISOString()]);
+    return r.map((x) => ({ id: x.id, calBookingId: x.cal_booking_id, name: x.attendee_name, phone: x.attendee_phone, scheduledFor: x.scheduled_for ? new Date(x.scheduled_for) : null }));
+  }
+
+  async markBookingAlerted(id: string) {
+    await query("update bookings set alerted_at = now() where id = $1", [id]);
   }
 }
