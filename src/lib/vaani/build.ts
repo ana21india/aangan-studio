@@ -53,6 +53,8 @@ export function buildPayloads(systemPrompt: string, faq: Record<string, string>)
       senses_capabilities: {
         language: "en",
         auto_detect: true,
+        // Low temperature: the agent must stick to what the caller said and what the documents say.
+        brain: { llm: { primary: { parameters: { temperature: 0.2, top_p: 1 } } } },
         ears: { stt: { primary: { language: "en" } } },
         mouth: { tts: { primary: { language: "en", config: { language: "en" } } } },
       },

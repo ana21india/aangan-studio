@@ -18,7 +18,8 @@
     "hubspot:setup": "tsx scripts/hubspot-setup.ts",
     "seed:demo": "tsx scripts/seed-demo.ts",
     "admin:set": "tsx scripts/admin-set-password.ts",
-    "vaani:sync": "tsx scripts/vaani-sync.ts"
+    "vaani:sync": "tsx scripts/vaani-sync.ts",
+    "vaani:create": "tsx scripts/vaani-create-agent.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
