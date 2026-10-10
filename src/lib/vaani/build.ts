@@ -64,9 +64,16 @@ export function buildPayloads(systemPrompt: string, faq: Record<string, string>)
         // A fast, non-"thinking" model keeps phone replies quick (Vaani's default, gemini-3.5-flash, pauses to think).
         // Low temperature: the agent must stick to what the caller said and what the documents say.
         // Short replies (max_tokens) also keep a phone call snappy.
-        brain: { llm: { primary: { provider: "openai", model: "gpt-4o-mini", parameters: { temperature: 0.2, top_p: 1, max_tokens: 300 } } } },
+        // The template's backup model used provider "azure", which Vaani has switched off: any dashboard save then fails.
+        brain: {
+          llm: {
+            primary: { provider: "openai", model: "gpt-4o-mini", parameters: { temperature: 0.2, top_p: 1, max_tokens: 300 } },
+            // Vaani requires the backup to come from a different provider than the main model.
+            fallback: { provider: "google", model: "gemini-3.5-flash", parameters: { temperature: 0.2, top_p: 1, max_tokens: 300 } },
+          },
+        },
         ears: { stt: { primary: { language: "en", keywords: SPEECH_KEYWORDS } } },
-        mouth: { tts: { primary: { language: "en", config: { language: "en" } } } },
+        mouth: { tts: { primary: { model: "sonic-3.5", language: "en", config: { language: "en" } } } },
       },
     },
     training: {
