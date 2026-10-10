@@ -151,6 +151,8 @@ describe("what we push to Vaani", () => {
     expect(p.persona.senses_capabilities.brain.llm.primary.parameters.max_tokens).toBeLessThanOrEqual(300);
     expect(template).toMatch(/Never mention Calendly/);
     expect(template).toMatch(/do not react to it/);
+    expect(template).toMatch(/Will the owners be joining the consultation/);
+    expect(template).toMatch(/echo/);
   });
 
   it("the FAQ never answers a price question with a number", () => {
