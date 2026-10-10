@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { assertNoPricing, buildPayloads, buildSystemPrompt, faqFrom, GREETING, redactAmounts } from "../src/lib/vaani/build";
-import { handleVaaniWebhook, normalisePhoneNumber, syntheticPhone, verifyToken } from "../src/lib/voice/vaani";
+import { durationFromTranscript, handleVaaniWebhook, normalisePhoneNumber, syntheticPhone, verifyToken } from "../src/lib/voice/vaani";
 import { MemoryVaaniSessions } from "../src/lib/voice/vaani-sessions";
 import type { CallEndedEvent } from "../src/lib/voice/types";
 
@@ -78,6 +78,19 @@ describe("Vaani events", () => {
     await handleVaaniWebhook({ event: "call_started", room_name: ROOM, phone_number: "919876543210" }, { ...deps, allowUnknownCaller: true });
     await handleVaaniWebhook(post(), { ...deps, allowUnknownCaller: true });
     expect(seen[0].callerPhone).toBe("+919876543210");
+  });
+
+  it("works out the call length from the transcript's clock times when Vaani sends none", async () => {
+    expect(durationFromTranscript("[13:43:05] AGENT: Hello
+[13:43:14] USER: Hi
+[13:45:35] AGENT: Bye")).toBe(150);
+    expect(durationFromTranscript("[23:59:50] AGENT: a
+[00:00:20] USER: b")).toBe(30);
+    expect(durationFromTranscript("AGENT: no clock times")).toBeNull();
+    const { seen, deps } = setup();
+    await handleVaaniWebhook(post({ data: { room_name: ROOM, call_id: "c-dur", transcript: `[13:43:05] AGENT: ${LONG}
+[13:45:35] USER: bye` } }), deps);
+    expect(seen[0].durationSec).toBe(150);
   });
 
   it("accepts a transcript sent as a list of turns", async () => {

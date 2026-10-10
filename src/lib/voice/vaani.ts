@@ -71,6 +71,17 @@ export interface VaaniBody {
 
 const MIN_TRANSCRIPT_CHARS = 120;
 
+// Vaani's call_postprocessing event did not carry the call length in our first live tests, but every transcript
+// line starts with a clock time "[13:43:05]". The span from first to last line is the call length.
+export function durationFromTranscript(transcript: string | null): number | null {
+  if (!transcript) return null;
+  const stamps = [...transcript.matchAll(/^\[(\d{2}):(\d{2}):(\d{2})\]/gm)].map((m) => Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3]));
+  if (stamps.length < 2) return null;
+  let span = stamps[stamps.length - 1] - stamps[0];
+  if (span < 0) span += 86_400; // the call crossed midnight
+  return span > 0 && span < 4 * 3600 ? span : null;
+}
+
 // A web (browser) test call has no phone number. When the owner switches on ALLOW_UNKNOWN_CALLERS (demo mode),
 // such a call gets a stable made-up number. It starts with 5, which no Indian mobile does, so it can never
 // reach a real person. Off by default: real calls without a number are refused (DECISIONS.md D-056).
@@ -109,7 +120,8 @@ export async function handleVaaniWebhook(body: VaaniBody, deps: VaaniDeps): Prom
     const room = d.room_name ?? body.room_name;
     const session = room ? await sessions.get(room) : null;
     const transcript = transcriptText(d.transcript);
-    const durationSec = typeof d.call_duration === "number" ? Math.round(d.call_duration / 1000) : null;
+    const reported = typeof d.call_duration === "number" ? Math.round(d.call_duration / 1000) : null;
+    const durationSec = reported && reported > 0 ? reported : durationFromTranscript(transcript);
 
     const ts = body.timestamp != null ? new Date(body.timestamp) : now;
     const endedAt = Number.isNaN(ts.getTime()) ? now : ts;
